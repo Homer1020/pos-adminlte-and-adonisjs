@@ -1,0 +1,80 @@
+@let(pageTitle = product ? 'Editar Producto' : 'Crear Producto')
+@layout.app({ title: "Crear Producto" })
+  @slot('css')
+    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <link rel="stylesheet" href="/plugins/summernote/summernote-bs4.min.css">
+  @endslot
+  @slot('header')
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Productos</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('products.index') }}">Productos</a></li>
+          <li class="breadcrumb-item active">{{ pageTitle }}</li>
+        </ol>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  @endslot
+  @slot('main')
+    <div class="row">
+      <div class="col-6">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title m-0">Detalles del producto</h5>
+          </div>
+          <div class="card-body">
+            <form action="{{ route('products.store') }}" method="POST">
+              {{ csrfField() }}
+
+              @!form.input({
+                name: 'name',
+                value: old('name', ''),
+                label: 'Nombre'
+              })
+
+              @!form.input({
+                name: 'price',
+                value: old('price', ''),
+                label: 'Precio',
+                type: 'number',
+                step: '0.01'
+              })
+
+              @!form.input({
+                name: 'disccount',
+                value: old('disccount', ''),
+                label: 'Descuento',
+                type: 'number',
+                step: '0.01'
+              })
+
+              @!form.textarea({
+                name: 'description',
+                value: old('description', ''),
+                label: 'Descripción',
+                rows: 5
+              })
+
+              <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="card">
+          <div class="card-header">
+            
+          </div>
+          <div class="card-body">
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  @endslot
+@end

@@ -1,0 +1,34 @@
+@layout.app({ title: "Detalles de la publicación" })
+  @slot('header')
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Publicaciones</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('posts.index') }}">Publicaciones</a></li>
+          <li class="breadcrumb-item active">Detalles de la publicación</li>
+        </ol>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  @endslot
+  @slot('main')
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="m-0">{{ post.title }}</h5>
+          </div>
+          <div class="card-body">
+            <p><strong>Fecha:</strong> {{ post.createdAt }}</p>
+            <p><strong>Categoria:</strong> {{ post.category?.name || 'Sin categoria' }}</p>
+            <p><strong>Estracto:</strong> {{ post.excerpt }}</p>
+            <hr>
+            {{{ post.content }}}
+          </div>
+        </div>
+      </div>
+    </div>
+  @endslot
+@end

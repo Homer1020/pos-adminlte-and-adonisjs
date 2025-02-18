@@ -1,0 +1,139 @@
+@let(pageTitle = post ? 'Editar Publicación' : 'Crear Publicación')
+@layout.app({ title: "Crear Publicación" })
+  @slot('css')
+    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <link rel="stylesheet" href="/plugins/summernote/summernote-bs4.min.css">
+  @endslot
+  @slot('header')
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Publicaciones</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('posts.index') }}">Publicaciones</a></li>
+          <li class="breadcrumb-item active">{{ pageTitle }}</li>
+        </ol>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  @endslot
+  @slot('main')
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title m-0">{{ pageTitle }}</h5>
+          </div>
+          <div class="card-body">
+            <form novalidate action="{{ route('posts.store') }}" method="POST">
+              {{ csrfField() }}
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="mb-3">
+                    <label for="title" class="form-label">Titúlo</label>
+                    <input required type="text" id="title" name="title" class="form-control {{ flashMessages.has('inputErrorsBag.title') ? 'is-invalid' : '' }}" value="{{ old('title', post?.title) || '' }}">
+                    @inputError('title')
+                      @each(message in $messages)
+                        <div class="invalid-feedback">{{ message }}</div>
+                      @end
+                    @end
+                  </div>
+                  <div class="mb-3">
+                    <label for="slug" class="form-label">Slug</label>
+                    <input required readonly type="text" id="slug" name="slug" class="form-control {{ flashMessages.has('inputErrorsBag.slug') ? 'is-invalid' : '' }}" value="{{ old('slug', post?.slug) || '' }}">
+                    @inputError('slug')
+                      @each(message in $messages)
+                        <div class="invalid-feedback">{{ message }}</div>
+                      @end
+                    @end
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="content" class="form-label">Contenido</label>
+                    <textarea required name="content" id="content" rows="4" class="form-control {{ flashMessages.has('inputErrorsBag.content') ? 'is-invalid' : '' }}">{{ old('content', post?.content) || '' }}</textarea>
+                    @inputError('content')
+                      @each(message in $messages)
+                        <div class="invalid-feedback">{{ message }}</div>
+                      @end
+                    @end
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="excerpt" class="form-label">Extracto</label>
+                    <textarea required name="excerpt" id="excerpt" rows="4" class="form-control {{ flashMessages.has('inputErrorsBag.excerpt') ? 'is-invalid' : '' }}">{{ old('excerpt', post?.excerpt) || '' }}</textarea>
+                    @inputError('excerpt')
+                      @each(message in $messages)
+                        <div class="invalid-feedback">{{ message }}</div>
+                      @end
+                    @end
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+
+                  <div class="mb-3">
+                    <label for="category_id" class="form-label">Categoria</label>
+                    <select class="w-100 {{ flashMessages.has('inputErrorsBag.category_id') ? 'is-invalid' : '' }}" data-placeholder="Seleccione una opcion" name="category_id" id="category_id">
+                      <option></option>
+                      @each(category in categories)
+                        <option {{ +old('category_id', post?.category_id) === category.id ? 'selected' : '' }} value="{{ category.id }}">{{ category.display_name }}</option>
+                      @endeach
+                    </select>
+                    @inputError('category_id')
+                      @each(message in $messages)
+                        <div class="invalid-feedback">{{ message }}</div>
+                      @end
+                    @end
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Miniatura</label>
+                    <div class="custom-file">
+                      <input type="file" class="custom-file-input" id="customFile">
+                      <label class="custom-file-label" for="customFile">Choose file</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  @endslot
+
+  @slot('scripts')
+    <script src="/plugins/select2/js/select2.full.min.js"></script>
+    <script src="/plugins/summernote/summernote-bs4.min.js"></script>
+
+    <script>
+
+      const $slug = document.getElementById('slug');
+      const $title = document.getElementById('title');
+
+      const generateSlug = e => {
+        const slug = e.target.value
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/_+/g, '-');
+        $slug.value = slug;
+      }
+
+      $title.addEventListener('input', generateSlug);
+
+      $('#category_id').select2({
+        theme: 'bootstrap4'
+      })
+
+      $('#content').summernote()
+
+    </script>
+  @endslot
+@end

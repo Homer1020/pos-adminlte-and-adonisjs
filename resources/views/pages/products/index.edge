@@ -1,0 +1,91 @@
+@layout.app({ title: "Listado de productos" })
+  @slot('css')
+    <!-- DataTables -->
+    <link rel="stylesheet" href="/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  @endslot
+  @slot('header')
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Productos</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Productos</li>
+        </ol>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  @endslot
+  @slot('main')
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title m-0">Listado de productos</h5>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-end mb-3">
+              <a href="{{ route('products.create') }}" class="btn btn-primary">
+                Crear Producto
+              </a>
+            </div>
+
+            <table class="table table-striped" id="productsTable" style="width:100%">
+              <thead>
+                <tr>
+                  <th>Miniatura</th>
+                  <th>Título</th>
+                  <th>URL</th>
+                  <th>Categorías</th>
+                  <th>Fecha</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{--  @each(post in posts)
+                  <tr>
+                    <td>
+                      <img width="60" src="https://assets.imgix.net/unsplash/mountains.jpg?w=200&h=150&fit=crop" alt="{{ post.title }}">
+                    </td>
+                    <td>{{ post.title }}</td>
+                    <td>
+                      <a href="{{ route('posts.show', post) }}">{{ post.slug }}</a>
+                    </td>
+                    <td>{{ post.category ? post.category.name : 'Sin categoría' }}</td>
+                    <td>{{ post.createdAt }}</td>
+                    <td>
+                      <a href="{{ route('posts.edit', post) }}" class="btn btn-warning">Editar</a>
+                      <form class="d-inline-block" action="{{ route('posts.destroy', post, { qs: { _method: 'DELETE' } }) }}" method="POST">
+                        {{ csrfField() }}
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                      </form>
+                    </td>
+                  </tr>
+                @endeach  --}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  @endslot
+
+  @slot('scripts')
+    <script type="module">
+
+      import DataTable from 'datatables.net-dt';
+
+      new DataTable('#postsTable', {
+        ordering: true,
+        order: [],
+        columnDefs: [
+          {
+            targets: [0, -1],
+            orderable: false
+          }
+        ]
+      });
+
+    </script>
+  @endslot
+@end

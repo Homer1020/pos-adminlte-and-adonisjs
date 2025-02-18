@@ -1,0 +1,22 @@
+@layout.app({ title: "Listado de usuarios" })
+  @slot('header')
+    <!--begin::Row-->
+    <div class="row">
+      <div class="col-sm-6"><h3 class="mb-0">Usuarios</h3></div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-end">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Usuarios</li>
+        </ol>
+      </div>
+    </div>
+    <!--end::Row-->
+  @endslot
+  @slot('main')
+    <div class="row">
+      <div class="col-6">
+        {{ request.matchesRoute('users.index') }}
+      </div>
+    </div>
+  @endslot
+@end
