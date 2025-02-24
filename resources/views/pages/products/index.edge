@@ -19,16 +19,16 @@
   @slot('main')
     <div class="row">
       <div class="col-12">
+        <div class="d-flex justify-content-end mb-3">
+          <a href="{{ route('products.create') }}" class="btn btn-primary">
+            Crear Producto
+          </a>
+        </div>
         <div class="card">
           <div class="card-header">
             <h5 class="card-title m-0">Listado de productos</h5>
           </div>
           <div class="card-body">
-            <div class="d-flex justify-content-end mb-3">
-              <a href="{{ route('products.create') }}" class="btn btn-primary">
-                Crear Producto
-              </a>
-            </div>
 
             <table class="table table-striped" id="productsTable" style="width:100%">
               <thead>
@@ -71,11 +71,10 @@
   @endslot
 
   @slot('scripts')
-    <script type="module">
-
-      import DataTable from 'datatables.net-dt';
-
-      new DataTable('#postsTable', {
+    <script src="/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+      new DataTable('#productsTable', {
         ordering: true,
         order: [],
         columnDefs: [
@@ -85,7 +84,6 @@
           }
         ]
       });
-
     </script>
   @endslot
 @end

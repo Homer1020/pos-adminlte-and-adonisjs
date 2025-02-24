@@ -11,6 +11,9 @@ export default class Post extends BaseModel {
   declare title: string
 
   @column()
+  declare thumbnail?: string
+
+  @column()
   declare slug: string
 
   @column()

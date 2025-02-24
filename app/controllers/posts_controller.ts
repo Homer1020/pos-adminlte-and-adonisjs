@@ -1,7 +1,9 @@
 import Category from '#models/category'
 import Post from '#models/post'
 import { createPostValidator } from '#validators/post'
+import { cuid } from '@adonisjs/core/helpers'
 import type { HttpContext } from '@adonisjs/core/http'
+import app from '@adonisjs/core/services/app'
 import db from '@adonisjs/lucid/services/db'
 
 export default class PostsController {
@@ -34,12 +36,21 @@ export default class PostsController {
       category_id: categoryId,
     } = await createPostValidator.validate(request.all())
 
+    const thumbnail = request.file('thumbnail')
+
+    if (thumbnail) {
+      await thumbnail?.move(app.makePath('storage/uploads'), {
+        name: `${cuid()}.${thumbnail.extname}`,
+      })
+    }
+
     await db.transaction(async () => {
       const post = await Post.create({
         title,
         slug,
         excerpt,
         content,
+        thumbnail: thumbnail?.fileName,
       })
 
       const category = await Category.find(categoryId)
@@ -78,13 +89,54 @@ export default class PostsController {
 
     const post = await Post.findOrFail(id)
 
-    return view.render('pages/posts/create', { post })
+    const categories = await Category.all()
+
+    return view.render('pages/posts/create', { post, categories })
   }
 
   /**
    * Handle form submission for the edit action
    */
-  // async update({ params, request }: HttpContext) {}
+  async update({ params, request, session, response }: HttpContext) {
+    const { id } = params
+    const {
+      title,
+      slug,
+      excerpt,
+      content,
+      category_id: categoryId,
+    } = await createPostValidator.validate(request.all())
+
+    const post = await Post.findOrFail(id)
+
+    post.title = title
+    post.slug = slug
+    post.excerpt = excerpt
+    post.content = content
+
+    const thumbnail = request.file('thumbnail')
+
+    if (thumbnail) {
+      await thumbnail?.move(app.makePath('storage/uploads'), {
+        name: `${cuid()}.${thumbnail.extname}`,
+      })
+
+      post.thumbnail = thumbnail.fileName
+    }
+
+    const category = await Category.find(categoryId)
+
+    if (category) {
+      post.related('category').associate(category)
+    }
+
+    session.flash('notification', {
+      type: 'success',
+      message: 'Se actualizó correctamente la publicación',
+    })
+
+    return response.redirect().toRoute('posts.index')
+  }
 
   /**
    * Delete record

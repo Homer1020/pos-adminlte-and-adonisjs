@@ -12,6 +12,7 @@ const UsersController = () => import('#controllers/users_controller')
 const AuthController = () => import('#controllers/auth_controller')
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const AssetsController = () => import('#controllers/assets_controller')
 const ProductsController = () => import('#controllers/products_controller')
 
 router.on('/').render('pages/home')
@@ -54,3 +55,5 @@ router
       guards: ['web'],
     })
   )
+
+router.get('/uploads/*', [AssetsController, 'index'])

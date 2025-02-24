@@ -19,17 +19,16 @@
   @slot('main')
     <div class="row">
       <div class="col-12">
+        <div class="d-flex justify-content-end mb-3">
+          <a href="{{ route('posts.create') }}" class="btn btn-primary">
+            Crear Publicacion
+          </a>
+        </div>
         <div class="card">
           <div class="card-header">
             <h5 class="card-title m-0">Listado de publicaciones</h5>
           </div>
           <div class="card-body">
-            <div class="d-flex justify-content-end mb-3">
-              <a href="{{ route('posts.create') }}" class="btn btn-primary">
-                Crear Publicacion
-              </a>
-            </div>
-
             <table class="table table-striped" id="postsTable" style="width:100%">
               <thead>
                 <tr>
@@ -45,7 +44,7 @@
                 @each(post in posts)
                   <tr>
                     <td>
-                      <img width="60" src="https://assets.imgix.net/unsplash/mountains.jpg?w=200&h=150&fit=crop" alt="{{ post.title }}">
+                      <img width="60" src="/uploads/{{ post.thumbnail }}" alt="{{ post.title }}">
                     </td>
                     <td>{{ post.title }}</td>
                     <td>

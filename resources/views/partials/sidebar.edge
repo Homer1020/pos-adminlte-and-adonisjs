@@ -8,8 +8,8 @@
         </p>
       </a>
     </li>
-    <li class="nav-item">
-      <a href="#" class="nav-link">
+    <li class="nav-item {{ request.matchesRoute(['products.index', 'products.create']) ? 'menu-open' : '' }}">
+      <a href="#" class="nav-link {{ request.matchesRoute(['products.index', 'products.create']) ? 'active' : '' }}">
         <i class="nav-icon fas fa-shopping-cart"></i>
         <p>
           Productos
@@ -18,18 +18,18 @@
       </a>
       <ul class="nav nav-treeview">
         <li class="nav-item">
-          <a href="{{ route('products.index') }}" class="nav-link">
+          <a href="{{ route('products.index') }}" class="nav-link {{ request.matchesRoute(['products.index']) ? 'active' : '' }}">
             <i class="far fa-circle nav-icon"></i>
             <p>Listado de Productos</p>
           </a>
-          <a href="{{ route('products.create') }}" class="nav-link">
+          <a href="{{ route('products.create') }}" class="nav-link {{ request.matchesRoute(['products.create']) ? 'active' : '' }}">
             <i class="far fa-circle nav-icon"></i>
             <p>Crear Producto</p>
           </a>
         </li>
       </ul>
     </li>
-    <li class="nav-item">
+    {{--  <li class="nav-item">
       <a href="#" class="nav-link">
         <i class="nav-icon fas fa-chart-pie"></i>
         <p>
@@ -63,5 +63,5 @@
           </a>
         </li>
       </ul>
-    </li>
+    </li>  --}}
 </nav>

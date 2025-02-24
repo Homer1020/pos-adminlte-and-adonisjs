@@ -1,8 +1,6 @@
 @let(pageTitle = post ? 'Editar Publicación' : 'Crear Publicación')
 @layout.app({ title: "Crear Publicación" })
   @slot('css')
-    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
-    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
     <link rel="stylesheet" href="/plugins/summernote/summernote-bs4.min.css">
   @endslot
   @slot('header')
@@ -27,7 +25,9 @@
             <h5 class="card-title m-0">{{ pageTitle }}</h5>
           </div>
           <div class="card-body">
-            <form novalidate action="{{ route('posts.store') }}" method="POST">
+            <form novalidate action="{{ !post ? route('posts.store') : route('posts.update', post, {
+              qs: { _method: 'PUT' }
+            }) }}" method="POST" enctype="multipart/form-data">
               {{ csrfField() }}
               <div class="row">
                 <div class="col-md-8">
@@ -75,7 +75,7 @@
 
                   <div class="mb-3">
                     <label for="category_id" class="form-label">Categoria</label>
-                    <select class="w-100 {{ flashMessages.has('inputErrorsBag.category_id') ? 'is-invalid' : '' }}" data-placeholder="Seleccione una opcion" name="category_id" id="category_id">
+                    <select class="w-100 select2 {{ flashMessages.has('inputErrorsBag.category_id') ? 'is-invalid' : '' }}" data-placeholder="Seleccione una opcion" name="category_id" id="category_id">
                       <option></option>
                       @each(category in categories)
                         <option {{ +old('category_id', post?.category_id) === category.id ? 'selected' : '' }} value="{{ category.id }}">{{ category.display_name }}</option>
@@ -90,10 +90,13 @@
                   <div class="mb-3">
                     <label class="form-label">Miniatura</label>
                     <div class="custom-file">
-                      <input type="file" class="custom-file-input" id="customFile">
+                      <input type="file" class="custom-file-input" name="thumbnail" id="customFile">
                       <label class="custom-file-label" for="customFile">Choose file</label>
                     </div>
                   </div>
+                  @if(post?.thumbnail)
+                    <img class="w-100 rounded" src="/uploads/{{ post.thumbnail }}" alt="">
+                  @endif
                 </div>
               </div>
 
@@ -106,7 +109,6 @@
   @endslot
 
   @slot('scripts')
-    <script src="/plugins/select2/js/select2.full.min.js"></script>
     <script src="/plugins/summernote/summernote-bs4.min.js"></script>
 
     <script>
@@ -127,10 +129,6 @@
       }
 
       $title.addEventListener('input', generateSlug);
-
-      $('#category_id').select2({
-        theme: 'bootstrap4'
-      })
 
       $('#content').summernote()
 
