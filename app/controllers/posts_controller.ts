@@ -50,7 +50,7 @@ export default class PostsController {
         slug,
         excerpt,
         content,
-        thumbnail: thumbnail?.fileName,
+        thumbnail: thumbnail?.fileName ? `/uploads/${thumbnail.fileName}` : undefined,
       })
 
       const category = await Category.find(categoryId)
@@ -105,7 +105,11 @@ export default class PostsController {
       excerpt,
       content,
       category_id: categoryId,
-    } = await createPostValidator.validate(request.all())
+    } = await request.validateUsing(createPostValidator, {
+      meta: {
+        postId: id,
+      },
+    })
 
     const post = await Post.findOrFail(id)
 

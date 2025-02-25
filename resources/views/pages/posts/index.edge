@@ -44,7 +44,7 @@
                 @each(post in posts)
                   <tr>
                     <td>
-                      <img width="60" src="/uploads/{{ post.thumbnail }}" alt="{{ post.title }}">
+                      <img width="60" src="{{ post.thumbnail }}" alt="{{ post.title }}">
                     </td>
                     <td>{{ post.title }}</td>
                     <td>
@@ -53,11 +53,13 @@
                     <td>{{ post.category ? post.category.name : 'Sin categoría' }}</td>
                     <td>{{ post.createdAt }}</td>
                     <td>
-                      <a href="{{ route('posts.edit', post) }}" class="btn btn-warning">Editar</a>
-                      <form class="d-inline-block" action="{{ route('posts.destroy', post, { qs: { _method: 'DELETE' } }) }}" method="POST">
-                        {{ csrfField() }}
-                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                      </form>
+                      <nobr>
+                        <a href="{{ route('posts.edit', post) }}" class="btn btn-warning">Editar</a>
+                        <form onsubmit="handleDelete(this)" class="d-inline-block delete-post" action="{{ route('posts.destroy', post, { qs: { _method: 'DELETE' } }) }}" method="POST">
+                          {{ csrfField() }}
+                          <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                      </nobr>
                     </td>
                   </tr>
                 @endeach
@@ -85,6 +87,24 @@
           }
         ]
       });
+
+      function handleDelete(form) {
+        event.preventDefault();
+
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.submit();
+          }
+        });
+      }
 
     </script>
   @endslot

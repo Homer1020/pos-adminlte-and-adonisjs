@@ -1,5 +1,6 @@
 import factory from '@adonisjs/lucid/factories'
 import Category from '#models/category'
+import { PostFactory } from './post_factory.js'
 
 export const CategoryFactory = factory
   .define(Category, async ({ faker }) => {
@@ -8,8 +9,9 @@ export const CategoryFactory = factory
       max: 3,
     })
     return {
-      name: category,
-      display_name: category.toLowerCase().replace(/\s+/g, '-'),
+      display_name: category,
+      name: category.toLowerCase().replace(/\s+/g, '-'),
     }
   })
+  .relation('posts', () => PostFactory)
   .build()

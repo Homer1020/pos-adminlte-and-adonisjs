@@ -19,6 +19,6 @@ DB_DATABASE=almacen_adonis
 ```
 4. Run migrations and seed the database
 ```
-node ace migration:run --db:seed
+node ace migration:run --seed
 ```
 5. Enjoy the app
