@@ -1,24 +1,107 @@
+import Category from '#models/category'
+import Product from '#models/product'
+import ProductImage from '#models/product_image'
+import { createProductValidator } from '#validators/product'
+import { cuid } from '@adonisjs/core/helpers'
 import type { HttpContext } from '@adonisjs/core/http'
+import app from '@adonisjs/core/services/app'
+import router from '@adonisjs/core/services/router'
+import fs from 'node:fs'
 
 export default class ProductsController {
   /**
    * Display a list of resource
    */
   async index({ view }: HttpContext) {
-    return view.render('pages/products/index')
+    const products = await Product.query()
+      .preload('images')
+      .preload('category')
+      .orderBy('created_at', 'desc')
+    // return products
+    return view.render('pages/products/index', { products })
   }
 
   /**
    * Display form to create a new record
    */
   async create({ view }: HttpContext) {
-    return view.render('pages/products/create')
+    const categories = await Category.all()
+    return view.render('pages/products/create', { categories })
   }
 
   // /**
   //  * Handle form submission for the create action
   //  */
-  // async store({ request }: HttpContext) {}
+  async store({ request, response, session }: HttpContext) {
+    const {
+      name,
+      description,
+      slug,
+      category_id: categoryId,
+      price,
+      images,
+    } = await request.validateUsing(createProductValidator)
+
+    // const images = request.files('images', {
+    //   size: '2mb',
+    //   extnames: ['jpg', 'jpeg', 'png'],
+    // })
+
+    // al menos debe de haber una imagen valida
+    const validImages = images.filter((image) => image.isValid)
+
+    if (!validImages.length) {
+      return response.badRequest({
+        errors: 'All files are invalid.',
+      })
+    }
+
+    const post = await Product.create({
+      name,
+      price,
+      description,
+      slug,
+      categoryId,
+    })
+
+    const postImages: Pick<ProductImage, 'path'>[] = []
+
+    for (let image of validImages) {
+      await image.move(app.makePath('storage/uploads/products'), {
+        name: `${cuid()}.${image.extname}`,
+      })
+
+      postImages.push({
+        path: `/uploads/products/${image.fileName}`,
+      })
+    }
+
+    await post.related('images').createMany(postImages)
+
+    session.flash('notification', {
+      type: 'success',
+      message: 'Se guardó correctamente el producto',
+    })
+
+    return response.redirect().toRoute('products.index')
+  }
+
+  async datatables({ response }: HttpContext) {
+    const dbProducts = await Product.query()
+      .preload('category')
+      .preload('images')
+      .orderBy('created_at', 'desc')
+
+    const products = dbProducts.map((product) => ({
+      ...product.toJSON(),
+      routes: {
+        deletePath: router.builder().params(product).make('products.destroy'),
+        showPath: router.builder().params(product).make('products.show'),
+      },
+    }))
+
+    return response.json({ ok: true, products })
+  }
 
   // /**
   //  * Show individual record
@@ -38,5 +121,19 @@ export default class ProductsController {
   // /**
   //  * Delete record
   //  */
-  // async destroy({ params }: HttpContext) {}
+  async destroy({ params, response }: HttpContext) {
+    const { id } = params
+
+    const product = await Product.query().where('id', id).preload('images').firstOrFail()
+
+    await product.delete()
+
+    product.images.forEach((image) => {
+      if (fs.existsSync(`storage/${image.path}`)) {
+        fs.unlinkSync(app.makePath(`storage/${image.path}`))
+      }
+    })
+
+    return response.json({ ok: true })
+  }
 }

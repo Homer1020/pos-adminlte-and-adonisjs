@@ -5,6 +5,7 @@ import { cuid } from '@adonisjs/core/helpers'
 import type { HttpContext } from '@adonisjs/core/http'
 import app from '@adonisjs/core/services/app'
 import db from '@adonisjs/lucid/services/db'
+import fs from 'node:fs'
 
 export default class PostsController {
   /**
@@ -125,7 +126,11 @@ export default class PostsController {
         name: `${cuid()}.${thumbnail.extname}`,
       })
 
-      post.thumbnail = thumbnail.fileName
+      if (post.thumbnail && fs.existsSync(`storage/${post.thumbnail}`)) {
+        fs.unlinkSync(app.makePath(`storage/${post.thumbnail}`))
+      }
+
+      post.thumbnail = `/uploads/${thumbnail.fileName}`
     }
 
     const category = await Category.find(categoryId)
@@ -149,6 +154,10 @@ export default class PostsController {
     const { id } = params
 
     const post = await Post.findOrFail(id)
+
+    if (post.thumbnail && fs.existsSync(`storage/${post.thumbnail}`)) {
+      fs.unlinkSync(app.makePath(`storage/${post.thumbnail}`))
+    }
 
     await post.delete()
 

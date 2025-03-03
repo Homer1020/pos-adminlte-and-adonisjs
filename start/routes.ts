@@ -25,6 +25,7 @@ router
     router.resource('posts', PostsController)
     router.resource('users', UsersController)
     router.resource('products', ProductsController)
+    router.get('datatables/products', [ProductsController, 'datatables']).as('products.datatables')
   })
   .prefix('admin')
   .middleware(

@@ -25,13 +25,35 @@
             <h5 class="card-title m-0">Detalles del producto</h5>
           </div>
           <div class="card-body">
-            <form action="{{ route('products.store') }}" method="POST">
+
+            <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
               {{ csrfField() }}
+
+              <div class="form-group">
+                <label for="category_id" class="form-label">Categoría</label>
+                <select name="category_id" id="category_id" class="w-100 {{ flashMessages.has('inputErrorsBag.category_id') ? 'is-invalid' : '' }}">
+                  <option></option>
+                  @each(category in categories)
+                    <option {{ +old('category_id', product?.category_id) === category.id ? 'selected' : '' }} value="{{ category.id }}">{{ category.display_name }}</option>
+                  @endeach
+                </select>
+                @inputError('category_id')
+                  @each(message in $messages)
+                    <div class="invalid-feedback">{{ message }}</div>
+                  @end
+                @end
+              </div>
 
               @!form.input({
                 name: 'name',
                 value: old('name', ''),
                 label: 'Nombre'
+              })
+
+              @!form.input({
+                name: 'slug',
+                value: old('slug', ''),
+                label: 'Slug'
               })
               
               @!form.input({
@@ -52,8 +74,13 @@
               <div class="form-group">
                 <label for="#" class="form-label">Imágenes</label>
                 <div class="custom-file">
-                  <input multiple accept=".jpg,.png,.jpeg,.webp" type="file" class="custom-file-input" id="customFile">
+                  <input multiple accept=".jpg,.png,.jpeg,.webp" type="file" class="custom-file-input {{ flashMessages.has('inputErrorsBag.images') ? 'is-invalid' : '' }}" id="customFile" name="images[]">
                   <label class="custom-file-label" for="customFile">Choose file</label>
+                  @inputError('images')
+                    @each(message in $messages)
+                      <div class="invalid-feedback">{{ message }}</div>
+                    @end
+                  @end
                 </div>
               </div>
 
@@ -114,6 +141,13 @@
     <script>
       bsCustomFileInput.init();
 
+      $('#category_id').select2({
+        allowClear: true,
+        placeholder: 'Seleccione una Opción',
+        theme: 'bootstrap4',
+      })
+
+
       const select2Instances = [];
 
       $('#attributes').select2({
@@ -121,7 +155,6 @@
         placeholder: 'Seleccione una Opción',
         theme: 'bootstrap4',
       })
-
       $('#attr-values').select2({
         allowClear: true,
         placeholder: 'Seleccione una Opción',
