@@ -1,3 +1,4 @@
+import Attribute from '#models/attribute'
 import Category from '#models/category'
 import Product from '#models/product'
 import ProductImage from '#models/product_image'
@@ -26,7 +27,8 @@ export default class ProductsController {
    */
   async create({ view }: HttpContext) {
     const categories = await Category.all()
-    return view.render('pages/products/create', { categories })
+    const attributes = await Attribute.query().preload('values')
+    return view.render('pages/products/create', { categories, attributes })
   }
 
   // /**

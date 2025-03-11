@@ -1,3 +1,4 @@
+import Attribute from '#models/attribute'
 import Category from '#models/category'
 import Post from '#models/post'
 import { createPostValidator } from '#validators/post'
@@ -22,7 +23,8 @@ export default class PostsController {
    */
   async create({ view }: HttpContext) {
     const categories = await Category.all()
-    return view.render('pages/posts/create', { categories })
+    const attributes = await Attribute.query().preload('values')
+    return view.render('pages/posts/create', { categories, attributes })
   }
 
   /**

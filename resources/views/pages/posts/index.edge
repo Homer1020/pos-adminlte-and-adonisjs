@@ -44,7 +44,7 @@
                 @each(post in posts)
                   <tr>
                     <td>
-                      <img width="60" src="{{ post.thumbnail }}" alt="{{ post.title }}">
+                      <img loading="lazy" width="60" src="{{ post.thumbnail }}" alt="{{ post.title }}">
                     </td>
                     <td>{{ post.title }}</td>
                     <td>

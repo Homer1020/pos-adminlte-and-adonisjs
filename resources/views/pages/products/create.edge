@@ -29,7 +29,16 @@
             <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
               {{ csrfField() }}
 
-              <div class="form-group">
+              @!form.select({
+                name: 'category_id',
+                data: categories,
+                defaultOption: +old('category_id'),
+                targetValue: 'id',
+                targetText: 'display_name',
+                label: 'Categoría'
+              })
+
+              {{--  <div class="form-group">
                 <label for="category_id" class="form-label">Categoría</label>
                 <select name="category_id" id="category_id" class="w-100 {{ flashMessages.has('inputErrorsBag.category_id') ? 'is-invalid' : '' }}">
                   <option></option>
@@ -42,7 +51,7 @@
                     <div class="invalid-feedback">{{ message }}</div>
                   @end
                 @end
-              </div>
+              </div>  --}}
 
               @!form.input({
                 name: 'name',
@@ -99,25 +108,6 @@
           </div>
           <div class="card-body">
             <div id="attributes-area">
-              <div class="attributes-block">
-                <div class="form-group">
-                  <label for="attributes" class="form-label">Atributo</label>
-                  <select name="attributes[]" id="attributes" class="w-100">
-                    <option></option>
-                    <option value="1as">Tamaño</option>
-                    <option value="2ss">Color</option>
-                  </select>
-                </div>
-    
-                <div class="form-group">
-                  <label for="attr-values" class="form-label">Opciones</label>
-                  <select multiple name="attr-values[]" id="attr-values" class="w-100">
-                    <option value="1as">Pequeño</option>
-                    <option value="2ss">Mediano</option>
-                    <option value="3ss">Grande</option>
-                  </select>
-                </div>  
-              </div>
             </div>
 
             <button class="btn btn-primary" id="add-variant-attribute" type="button">Agregar Atributo</button>
@@ -139,6 +129,8 @@
   @slot('scripts')
     <script src="/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
     <script>
+      const attributes = JSON.parse(`{{{ JSON.stringify(attributes) }}}`);
+
       bsCustomFileInput.init();
 
       $('#category_id').select2({
@@ -147,59 +139,72 @@
         theme: 'bootstrap4',
       })
 
+      const $btnAddAttribute = $('#add-variant-attribute');
+      const $attributesArea = $('#attributes-area');
 
-      const select2Instances = [];
+      let attributesCount = 0;
 
-      $('#attributes').select2({
-        allowClear: true,
-        placeholder: 'Seleccione una Opción',
-        theme: 'bootstrap4',
-      })
-      $('#attr-values').select2({
-        allowClear: true,
-        placeholder: 'Seleccione una Opción',
-        theme: 'bootstrap4',
-      })
+      $btnAddAttribute.on('click', function() {
+        attributesCount += 1;
+        
+        const selectId = `attributes-${ attributesCount }`;
+        const valuesId = `values-${ attributesCount }`;
 
-      let countAttributes = 1
-
-      $('#add-variant-attribute').on('click', function() {
-        countAttributes += 1
         const html = `
-          <div class="attributes-block" data-attribute-index="${ countAttributes }">
+          <div class="attribute-group">
             <div class="form-group">
-              <label for="attributes-${ countAttributes }" class="form-label">Atributo</label>
-              <select name="attributes[]" id="attributes-${ countAttributes }" class="w-100">
+              <label for="${ selectId }" class="form-label">Atributo</label>
+              <select name="attributes[]" id="${ selectId }" class="w-100">
                 <option></option>
-                <option value="2ss">Color</option>
+                ${ attributes.map(attr => (
+                  `<option value="${ attr.id }">${ attr.name }</option>`
+                )) }
               </select>
             </div>
 
             <div class="form-group">
-              <label for="attr-values-${ countAttributes }" class="form-label">Opciones</label>
-              <select multiple name="attr-values[]" id="attr-values-${ countAttributes }" class="w-100">
-                <option value="1as">Rojo</option>
-                <option value="2ss">Verde</option>
-                <option value="3ss">Anaranjado</option>
+              <label for="${ valuesId }" class="form-label">Valores</label>
+              <select name="values[]" multiple id="${ valuesId }" class="w-100">
+                <option></option>
               </select>
-            </div>  
+            </div>
           </div>
-        `.trim()
+        `.trim();
 
-        $('#attributes-area').append(html);
+        $attributesArea.append(html);
 
-        $(`#attributes-${ countAttributes }`).select2({
+        $(`#${selectId}`).select2({
           allowClear: true,
           placeholder: 'Seleccione una Opción',
           theme: 'bootstrap4',
-        })
+        });
 
-        $(`#attr-values-${ countAttributes }`).select2({
+        $(`#${valuesId}`).select2({
           allowClear: true,
           placeholder: 'Seleccione una Opción',
           theme: 'bootstrap4',
-        })
-      })
+        });
+
+        $(`#${selectId}`).on('select2:select', handleSelectAttribute);
+
+        $btnAddAttribute.attr('disabled', true);
+      });
+
+      function handleSelectAttribute(ev) {
+        const $attributeSelect = $(`#${ ev.target.id }`);
+        const $selected = $attributeSelect.find(':selected');
+        const attribute = attributes.find(attr => attr.id === +$selected.val());
+
+        const $valuesSelect = $attributeSelect.closest('.attribute-group').find('[name="values[]"]');
+        $valuesSelect.empty();
+
+        attribute.values.forEach(value => {
+          const option = new Option(value.value, value.id, false, false);
+          $valuesSelect.append(option);
+        });
+
+        $valuesSelect.trigger('change');
+      }
     </script>
   @endslot
 @end

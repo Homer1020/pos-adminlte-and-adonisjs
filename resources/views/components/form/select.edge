@@ -1,0 +1,21 @@
+<div class="mb-3">
+  <label for="{{ name }}" class="form-label">{{ label }}</label>
+  <select
+    class="w-100 select2 {{ flashMessages.has(`inputErrorsBag[${ name }]`) ? 'is-invalid' : '' }}"
+    name="{{ name }}"
+    id="{{ name }}"
+    >
+    <option></option>
+    @each(item in data)
+      <option
+        {{ defaultOption === item[targetValue] ? 'selected' : '' }}
+        value="{{ item[targetValue] }}"
+        >{{ item[targetText] }}</option>
+    @endeach
+  </select>
+  @inputError(name)
+    @each(message in $messages)
+      <div class="invalid-feedback">{{ message }}</div>
+    @end
+  @end
+</div>
