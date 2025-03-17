@@ -14,7 +14,7 @@ export default class AuthController {
 
     await auth.use('web').login(user)
 
-    return response.redirect('/admin/posts')
+    return response.redirect().toRoute('products.index')
   }
 
   registerForm({ view }: HttpContext) {

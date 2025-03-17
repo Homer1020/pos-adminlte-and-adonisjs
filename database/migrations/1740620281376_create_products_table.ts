@@ -16,6 +16,7 @@ export default class extends BaseSchema {
 
       table.string('name')
       table.string('slug').unique()
+      table.string('code').unique()
       table.decimal('price')
       table.text('description')
 

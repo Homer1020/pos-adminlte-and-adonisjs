@@ -42,12 +42,8 @@ export default class ProductsController {
       category_id: categoryId,
       price,
       images,
+      values,
     } = await request.validateUsing(createProductValidator)
-
-    // const images = request.files('images', {
-    //   size: '2mb',
-    //   extnames: ['jpg', 'jpeg', 'png'],
-    // })
 
     // al menos debe de haber una imagen valida
     const validImages = images.filter((image) => image.isValid)
@@ -80,6 +76,21 @@ export default class ProductsController {
 
     await post.related('images').createMany(postImages)
 
+    let obj: { [key: number]: { attribute_id: number } } = {}
+
+    for (let attr in values) {
+      const arrValues = Array.isArray(values[attr]) ? values[attr] : [values[attr]]
+      const attrId = Number(attr.split('-').at(-1))
+
+      arrValues.forEach((value) => {
+        obj[value] = {
+          attribute_id: attrId,
+        }
+      })
+
+      post.related('values').attach(obj)
+    }
+
     session.flash('notification', {
       type: 'success',
       message: 'Se guardó correctamente el producto',
@@ -108,7 +119,20 @@ export default class ProductsController {
   // /**
   //  * Show individual record
   //  */
-  // async show({ params }: HttpContext) {}
+  async show({ params, view }: HttpContext) {
+    const { id } = params
+
+    const product = await Product.query()
+      .where({
+        id,
+      })
+      .preload('category')
+      .preload('images')
+      .preload('values')
+      .first()
+
+    return view.render('pages/products/show', { product })
+  }
 
   // /**
   //  * Edit individual record

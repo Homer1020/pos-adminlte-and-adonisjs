@@ -12,11 +12,12 @@ export const createProductValidator = vine.compile(
         .first()
       return !product
     }),
-    description: vine.string(),
+    description: vine.string().optional(),
     category_id: vine.number().exists({
       table: 'product_categories',
       column: 'id',
     }),
+    values: vine.record(vine.unionOfTypes([vine.array(vine.number()), vine.number()])).optional(),
     images: vine
       .array(
         vine.file({

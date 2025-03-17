@@ -18,15 +18,14 @@
     </div><!-- /.row -->
   @endslot
   @slot('main')
-    <div class="row">
+    <form class="row" action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
       <div class="col-6">
         <div class="card">
           <div class="card-header">
             <h5 class="card-title m-0">Detalles del producto</h5>
           </div>
           <div class="card-body">
-
-            <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+            <div>
               {{ csrfField() }}
 
               @!form.select({
@@ -37,21 +36,6 @@
                 targetText: 'display_name',
                 label: 'Categoría'
               })
-
-              {{--  <div class="form-group">
-                <label for="category_id" class="form-label">Categoría</label>
-                <select name="category_id" id="category_id" class="w-100 {{ flashMessages.has('inputErrorsBag.category_id') ? 'is-invalid' : '' }}">
-                  <option></option>
-                  @each(category in categories)
-                    <option {{ +old('category_id', product?.category_id) === category.id ? 'selected' : '' }} value="{{ category.id }}">{{ category.display_name }}</option>
-                  @endeach
-                </select>
-                @inputError('category_id')
-                  @each(message in $messages)
-                    <div class="invalid-feedback">{{ message }}</div>
-                  @end
-                @end
-              </div>  --}}
 
               @!form.input({
                 name: 'name',
@@ -96,7 +80,7 @@
               <div id="gallery" class="row"></div>
 
               <button type="submit" class="btn btn-primary">Guardar</button>
-            </form>
+            </div>
           </div>
         </div>
       </div>
@@ -119,11 +103,11 @@
             <h5 class="card-title m-0">Variaciones</h5>
           </div>
           <div class="card-body">
-            
+            <pre>{{{JSON.stringify( flashMessages.get('inputErrorsBag'), null, 3)}}}</pre>
           </div>
         </div>
       </div>
-    </div>
+    </form>
   @endslot
 
   @slot('scripts')
@@ -143,8 +127,16 @@
       const $attributesArea = $('#attributes-area');
 
       let attributesCount = 0;
+      const oldValues = JSON.parse(`{{{ JSON.stringify(old('values') ?? {}) }}}`);
+      
+      for(let key in oldValues) {
+        const oldAttrId = key.split('-').at(-1);
+        renderAttrSelects(oldAttrId);
+      }
 
-      $btnAddAttribute.on('click', function() {
+      $btnAddAttribute.on('click', () => renderAttrSelects());
+
+      function renderAttrSelects(defaultSeleted = false) {
         attributesCount += 1;
         
         const selectId = `attributes-${ attributesCount }`;
@@ -154,7 +146,7 @@
           <div class="attribute-group">
             <div class="form-group">
               <label for="${ selectId }" class="form-label">Atributo</label>
-              <select name="attributes[]" id="${ selectId }" class="w-100">
+              <select id="${ selectId }" class="w-100">
                 <option></option>
                 ${ attributes.map(attr => (
                   `<option value="${ attr.id }">${ attr.name }</option>`
@@ -164,7 +156,7 @@
 
             <div class="form-group">
               <label for="${ valuesId }" class="form-label">Valores</label>
-              <select name="values[]" multiple id="${ valuesId }" class="w-100">
+              <select multiple id="${ valuesId }" class="w-100">
                 <option></option>
               </select>
             </div>
@@ -187,15 +179,25 @@
 
         $(`#${selectId}`).on('select2:select', handleSelectAttribute);
 
+        if(defaultSeleted) {
+          $(`#${selectId}`)
+            .val(defaultSeleted)
+            .trigger('change')
+            .trigger('select2:select');
+        }
+
         $btnAddAttribute.attr('disabled', true);
-      });
+      }
 
       function handleSelectAttribute(ev) {
         const $attributeSelect = $(`#${ ev.target.id }`);
         const $selected = $attributeSelect.find(':selected');
         const attribute = attributes.find(attr => attr.id === +$selected.val());
 
-        const $valuesSelect = $attributeSelect.closest('.attribute-group').find('[name="values[]"]');
+        const $valuesSelect = $attributeSelect.closest('.attribute-group').find(`[id^="values"]`);
+        
+        $valuesSelect.attr('name', `attributes[attr-${ attribute.id }[values[]]]`);
+        $valuesSelect.attr('name', `values[attr-${ attribute.id }[]]`);
         $valuesSelect.empty();
 
         attribute.values.forEach(value => {
@@ -204,6 +206,19 @@
         });
 
         $valuesSelect.trigger('change');
+        
+        $valuesSelect.on('change', toggleDisabledAddAttribute);
+
+        if(oldValues && Object.keys(oldValues).length) {
+          const targetKey = Object.keys(oldValues).find(key => key.endsWith(`${ attribute.id }`));
+          $valuesSelect.val(oldValues[targetKey]).trigger('change');
+        }
+      }
+
+      function toggleDisabledAddAttribute(ev) {
+        const selectedValues = $(ev.currentTarget).select2('data');
+
+        $btnAddAttribute.attr('disabled', !(selectedValues.length));
       }
     </script>
   @endslot

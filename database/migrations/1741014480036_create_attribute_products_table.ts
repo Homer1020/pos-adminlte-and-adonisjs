@@ -27,7 +27,7 @@ export default class extends BaseSchema {
         .integer('attribute_value_id')
         .unsigned()
         .references('id')
-        .inTable('attributes')
+        .inTable('attribute_values')
         .onDelete('CASCADE')
         .onUpdate('CASCADE')
     })
