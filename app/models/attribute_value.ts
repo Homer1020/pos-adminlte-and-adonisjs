@@ -9,7 +9,9 @@ export default class AttributeValue extends BaseModel {
   @column()
   declare attribute_id: number
 
-  @belongsTo(() => Attribute)
+  @belongsTo(() => Attribute, {
+    foreignKey: 'attribute_id',
+  })
   declare attribute: BelongsTo<typeof Attribute>
 
   @column()

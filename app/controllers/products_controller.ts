@@ -76,9 +76,8 @@ export default class ProductsController {
 
     await post.related('images').createMany(postImages)
 
-    let obj: { [key: number]: { attribute_id: number } } = {}
-
     for (let attr in values) {
+      const obj: { [key: number]: { attribute_id: number } } = {}
       const arrValues = Array.isArray(values[attr]) ? values[attr] : [values[attr]]
       const attrId = Number(attr.split('-').at(-1))
 
@@ -87,6 +86,8 @@ export default class ProductsController {
           attribute_id: attrId,
         }
       })
+
+      console.log({ obj })
 
       post.related('values').attach(obj)
     }
@@ -123,15 +124,24 @@ export default class ProductsController {
     const { id } = params
 
     const product = await Product.query()
-      .where({
-        id,
-      })
+      .where({ id })
       .preload('category')
       .preload('images')
-      .preload('values')
+      .preload('values', (valuesQuery) => {
+        valuesQuery.preload('attribute')
+      })
       .first()
 
-    return view.render('pages/products/show', { product })
+    const attributes: { [key: string]: string[] } = {}
+
+    if (product?.values.length) {
+      product.values.forEach((value) => {
+        if (!attributes[value.attribute.name]) attributes[value.attribute.name] = []
+        attributes[value.attribute.name].push(value.value)
+      })
+    }
+
+    return view.render('pages/products/show', { product, attributes })
   }
 
   // /**

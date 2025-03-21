@@ -4,6 +4,7 @@ import ProductImage from './product_image.js'
 import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import ProductCategory from './product_category.js'
 import AttributeValue from './attribute_value.js'
+import Attribute from './attribute.js'
 
 export default class Product extends BaseModel {
   @column({ isPrimary: true })
@@ -39,6 +40,12 @@ export default class Product extends BaseModel {
     pivotTable: 'attribute_products',
   })
   declare values: ManyToMany<typeof AttributeValue>
+
+  @manyToMany(() => Attribute, {
+    pivotColumns: ['attribute_value_id'],
+    pivotTable: 'attribute_products',
+  })
+  declare attributes: ManyToMany<typeof Attribute>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

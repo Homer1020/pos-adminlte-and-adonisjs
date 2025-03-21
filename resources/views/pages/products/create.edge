@@ -103,7 +103,7 @@
             <h5 class="card-title m-0">Variaciones</h5>
           </div>
           <div class="card-body">
-            <pre>{{{JSON.stringify( flashMessages.get('inputErrorsBag'), null, 3)}}}</pre>
+            {{--  <pre>{{{JSON.stringify( flashMessages.get('inputErrorsBag'), null, 3)}}}</pre>  --}}
           </div>
         </div>
       </div>
@@ -113,6 +113,32 @@
   @slot('scripts')
     <script src="/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
     <script>
+      slugField(
+        document.getElementById('slug'),
+        document.getElementById('name')
+      );
+
+      const $file = $('#customFile');
+      const $gallery = $('#gallery');
+
+      $file.on('change', function(ev) {
+        const { files } = ev.target;
+        $gallery.html('');
+        Array.from(files).forEach(file => {
+          const reader = new FileReader();
+
+          reader.onload = function() {
+            const image = `
+            <div class="col-3 mb-3">
+              <img class="img-thumbnail" style="aspect-ratio: 4/3; object-fit: cover;" src="${ reader.result }">
+            </div>`.trim();
+            $gallery.append(image);
+          }
+
+          reader.readAsDataURL(file);
+        });
+      });
+
       const attributes = JSON.parse(`{{{ JSON.stringify(attributes) }}}`);
 
       bsCustomFileInput.init();
@@ -121,7 +147,7 @@
         allowClear: true,
         placeholder: 'Seleccione una Opción',
         theme: 'bootstrap4',
-      })
+      });
 
       const $btnAddAttribute = $('#add-variant-attribute');
       const $attributesArea = $('#attributes-area');
@@ -133,6 +159,8 @@
         const oldAttrId = key.split('-').at(-1);
         renderAttrSelects(oldAttrId);
       }
+
+      const selectedAttributes = [];
 
       $btnAddAttribute.on('click', () => renderAttrSelects());
 
@@ -148,7 +176,7 @@
               <label for="${ selectId }" class="form-label">Atributo</label>
               <select id="${ selectId }" class="w-100">
                 <option></option>
-                ${ attributes.map(attr => (
+                ${ attributes.filter(attr => !selectedAttributes.includes(attr.id)).map(attr => (
                   `<option value="${ attr.id }">${ attr.name }</option>`
                 )) }
               </select>
@@ -193,9 +221,10 @@
         const $attributeSelect = $(`#${ ev.target.id }`);
         const $selected = $attributeSelect.find(':selected');
         const attribute = attributes.find(attr => attr.id === +$selected.val());
-
         const $valuesSelect = $attributeSelect.closest('.attribute-group').find(`[id^="values"]`);
         
+        selectedAttributes.push(attribute.id);
+
         $valuesSelect.attr('name', `attributes[attr-${ attribute.id }[values[]]]`);
         $valuesSelect.attr('name', `values[attr-${ attribute.id }[]]`);
         $valuesSelect.empty();

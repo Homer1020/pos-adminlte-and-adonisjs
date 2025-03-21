@@ -110,28 +110,12 @@
 
   @slot('scripts')
     <script src="/plugins/summernote/summernote-bs4.min.js"></script>
-
     <script>
-
-      const $slug = document.getElementById('slug');
-      const $title = document.getElementById('title');
-
-      const generateSlug = e => {
-        const slug = e.target.value
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .trim()
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/_+/g, '-');
-        $slug.value = slug;
-      }
-
-      $title.addEventListener('input', generateSlug);
-
+      slugField(
+        document.getElementById('slug'),
+        document.getElementById('title')
+      )
       $('#content').summernote()
-
     </script>
   @endslot
 @end
