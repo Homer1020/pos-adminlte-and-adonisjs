@@ -73,21 +73,17 @@
             }
           },
           { data: 'name' },
-          { data: 'price' },
+          { data: 'price', render(data) { return '$' + data } },
           { data: 'category.name' },
-          {
-            data: 'slug',
-            render(data, _, all) {
-              return `<a href="${ all.routes.showPath }">${ data }</a>`;
-            }
-          },
+          { data: 'brand.name', },
           { data: 'createdAt' },
           {
             data: 'routes',
             render(data) {
               return `
                 <div style="white-space: nowrap;">
-                  <button class="btn btn-warning">Editar</button>  
+                  <a href="${ data.showPath }" class="btn btn-primary">Detalles</a>
+                  <a href="${ data.editPath }" class="btn btn-warning">Editar</a>
                   <button onclick="deleteProduct('${data.deletePath}')" class="btn btn-danger">Eliminar</button>  
                 </div>
               `

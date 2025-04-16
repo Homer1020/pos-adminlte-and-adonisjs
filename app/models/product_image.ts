@@ -7,6 +7,9 @@ export default class ProductImage extends BaseModel {
   @column()
   declare path: string
 
+  @column()
+  declare is_default?: boolean
+
   @column({ columnName: 'product_id' })
   declare productId: number
 

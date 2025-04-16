@@ -8,8 +8,8 @@
         </p>
       </a>
     </li>
-    <li class="nav-item {{ request.matchesRoute(['products.index', 'products.create', 'products.show']) ? 'menu-open' : '' }}">
-      <a href="#" class="nav-link {{ request.matchesRoute(['products.index', 'products.create', 'products.show']) ? 'active' : '' }}">
+    <li class="nav-item {{ request.matchesRoute(['products.index', 'products.create', 'products.show', 'products.edit','attributes.index']) ? 'menu-open' : '' }}">
+      <a href="#" class="nav-link {{ request.matchesRoute(['products.index', 'products.create', 'products.show', 'products.edit', 'attributes.index']) ? 'active' : '' }}">
         <i class="nav-icon fas fa-shopping-cart"></i>
         <p>
           Productos
@@ -25,6 +25,14 @@
           <a href="{{ route('products.create') }}" class="nav-link {{ request.matchesRoute(['products.create']) ? 'active' : '' }}">
             <i class="far fa-circle nav-icon"></i>
             <p>Crear Producto</p>
+          </a>
+          <a href="{{ route('attributes.index') }}" class="nav-link {{ request.matchesRoute(['attributes.index']) ? 'active' : '' }}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Características</p>
+          </a>
+          <a href="#" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Carga Masiva</p>
           </a>
         </li>
       </ul>

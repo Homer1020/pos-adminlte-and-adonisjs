@@ -28,30 +28,44 @@
             <div>
               {{ csrfField() }}
 
-              @!form.select({
-                name: 'category_id',
-                data: categories,
-                defaultOption: +old('category_id'),
-                targetValue: 'id',
-                targetText: 'display_name',
-                label: 'Categoría'
-              })
-
               @!form.input({
                 name: 'name',
-                value: old('name', ''),
+                value: old('name', product?.name || ''),
                 label: 'Nombre'
               })
 
               @!form.input({
                 name: 'slug',
-                value: old('slug', ''),
+                value: old('slug', product?.slug || ''),
                 label: 'Slug'
               })
+
+              <div class="row">
+                <div class="col-12 col-lg-6">
+                  @!form.select({
+                    name: 'category_id',
+                    data: categories,
+                    defaultOption: +old('category_id', product?.categoryId || ''),
+                    targetValue: 'id',
+                    targetText: 'display_name',
+                    label: 'Categoría'
+                  })
+                </div>
+                <div class="col-12 col-lg-6">
+                  @!form.select({
+                    name: 'brand_id',
+                    data: brands,
+                    defaultOption: +old('brand_id', product?.brandId || ''),
+                    targetValue: 'id',
+                    targetText: 'display_name',
+                    label: 'Marca'
+                  })
+                </div>
+              </div>
               
               @!form.input({
                 name: 'price',
-                value: old('price', ''),
+                value: old('price', product?.price || ''),
                 label: 'Precio',
                 type: 'number',
                 step: '0.01'
@@ -59,7 +73,7 @@
 
               @!form.textarea({
                 name: 'description',
-                value: old('description', ''),
+                value: old('description', product?.description || ''),
                 label: 'Descripción',
                 rows: 5
               })
@@ -77,7 +91,15 @@
                 </div>
               </div>
 
-              <div id="gallery" class="row"></div>
+              <div id="gallery" class="row">
+                @if(product?.images)
+                  @each(image in product.images)
+                    <div class="col-3 mb-3">
+                      <img class="img-thumbnail" style="aspect-ratio: 4/3; object-fit: cover;" src="{{ image.path }}">
+                    </div>
+                  @endeach
+                @endif
+              </div>
 
               <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
@@ -86,24 +108,26 @@
       </div>
 
       <div class="col-6">
-        <div class="card">
+        <div class="card collapsed-card">
           <div class="card-header">
             <h5 class="card-title m-0">Atributos</h5>
-          </div>
-          <div class="card-body">
-            <div id="attributes-area">
+
+            <div class="card-tools">
+              <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-plus"></i>
+              </button>
             </div>
-
-            <button class="btn btn-primary" id="add-variant-attribute" type="button">Agregar Atributo</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h5 class="card-title m-0">Variaciones</h5>
           </div>
           <div class="card-body">
-            {{--  <pre>{{{JSON.stringify( flashMessages.get('inputErrorsBag'), null, 3)}}}</pre>  --}}
+            @!form.select({
+              name: 'attributes',
+              data: attributes,
+              defaultOption: +old('attributes'),
+              targetValue: 'id',
+              targetText: 'name',
+              label: 'Attributos',
+              multiple: true
+            })
           </div>
         </div>
       </div>
@@ -149,106 +173,23 @@
         theme: 'bootstrap4',
       });
 
-      const $btnAddAttribute = $('#add-variant-attribute');
-      const $attributesArea = $('#attributes-area');
+      $('#brand_id').select2({
+        allowClear: true,
+        placeholder: 'Seleccione una Opción',
+        theme: 'bootstrap4',
+      });
 
-      let attributesCount = 0;
-      const oldValues = JSON.parse(`{{{ JSON.stringify(old('values') ?? {}) }}}`);
-      
-      for(let key in oldValues) {
-        const oldAttrId = key.split('-').at(-1);
-        renderAttrSelects(oldAttrId);
-      }
+      $('#attributes').select2({
+        allowClear: true,
+        placeholder: 'Seleccione una Opción',
+        theme: 'bootstrap4',
+        multiple: true
+      });
 
-      const selectedAttributes = [];
-
-      $btnAddAttribute.on('click', () => renderAttrSelects());
-
-      function renderAttrSelects(defaultSeleted = false) {
-        attributesCount += 1;
-        
-        const selectId = `attributes-${ attributesCount }`;
-        const valuesId = `values-${ attributesCount }`;
-
-        const html = `
-          <div class="attribute-group">
-            <div class="form-group">
-              <label for="${ selectId }" class="form-label">Atributo</label>
-              <select id="${ selectId }" class="w-100">
-                <option></option>
-                ${ attributes.filter(attr => !selectedAttributes.includes(attr.id)).map(attr => (
-                  `<option value="${ attr.id }">${ attr.name }</option>`
-                )) }
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="${ valuesId }" class="form-label">Valores</label>
-              <select multiple id="${ valuesId }" class="w-100">
-                <option></option>
-              </select>
-            </div>
-          </div>
-        `.trim();
-
-        $attributesArea.append(html);
-
-        $(`#${selectId}`).select2({
-          allowClear: true,
-          placeholder: 'Seleccione una Opción',
-          theme: 'bootstrap4',
-        });
-
-        $(`#${valuesId}`).select2({
-          allowClear: true,
-          placeholder: 'Seleccione una Opción',
-          theme: 'bootstrap4',
-        });
-
-        $(`#${selectId}`).on('select2:select', handleSelectAttribute);
-
-        if(defaultSeleted) {
-          $(`#${selectId}`)
-            .val(defaultSeleted)
-            .trigger('change')
-            .trigger('select2:select');
-        }
-
-        $btnAddAttribute.attr('disabled', true);
-      }
-
-      function handleSelectAttribute(ev) {
-        const $attributeSelect = $(`#${ ev.target.id }`);
-        const $selected = $attributeSelect.find(':selected');
-        const attribute = attributes.find(attr => attr.id === +$selected.val());
-        const $valuesSelect = $attributeSelect.closest('.attribute-group').find(`[id^="values"]`);
-        
-        selectedAttributes.push(attribute.id);
-
-        $valuesSelect.attr('name', `attributes[attr-${ attribute.id }[values[]]]`);
-        $valuesSelect.attr('name', `values[attr-${ attribute.id }[]]`);
-        $valuesSelect.empty();
-
-        attribute.values.forEach(value => {
-          const option = new Option(value.value, value.id, false, false);
-          $valuesSelect.append(option);
-        });
-
-        $valuesSelect.trigger('change');
-        
-        $valuesSelect.on('change', toggleDisabledAddAttribute);
-
-        if(oldValues && Object.keys(oldValues).length) {
-          const targetKey = Object.keys(oldValues).find(key => key.endsWith(`${ attribute.id }`));
-          $valuesSelect.val(oldValues[targetKey]).trigger('change');
-        }
-      }
-
-      function toggleDisabledAddAttribute(ev) {
-        const selectedValues = $(ev.currentTarget).select2('data');
-
-        $btnAddAttribute.attr('disabled', !(selectedValues.length));
-      }
+      $('#attributes').on('change', function(ev) {
+        const attributes = $('#attributes').select2('data');
+        console.log({attributes})
+      });
     </script>
   @endslot
 @end

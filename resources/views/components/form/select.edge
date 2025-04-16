@@ -4,8 +4,11 @@
     class="w-100 select2 {{ flashMessages.has(`inputErrorsBag[${ name }]`) ? 'is-invalid' : '' }}"
     name="{{ name }}"
     id="{{ name }}"
+    {{ $props.only(['multiple']).toAttrs() }} 
     >
-    <option></option>
+    @if(!multiple)
+      <option></option>
+    @endif
     @each(item in data)
       <option
         {{ defaultOption === item[targetValue] ? 'selected' : '' }}

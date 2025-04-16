@@ -10,12 +10,14 @@ export default class extends BaseSchema {
       table.string('path')
       table
         .integer('product_id')
+        .notNullable()
         .unsigned()
         .references('id')
         .inTable('products')
         .onDelete('CASCADE')
+        .onUpdate('CASCADE')
 
-      table.boolean('is_default').defaultTo(false)
+      table.boolean('is_default').notNullable().defaultTo(false)
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

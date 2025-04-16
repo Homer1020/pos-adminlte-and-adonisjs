@@ -15,7 +15,7 @@ export const createPostValidator = vine.compile(
         return !post
       }),
     excerpt: vine.string().trim().escape(),
-    category_id: vine.string().exists({
+    category_id: vine.number().exists({
       table: 'categories',
       column: 'id',
     }),

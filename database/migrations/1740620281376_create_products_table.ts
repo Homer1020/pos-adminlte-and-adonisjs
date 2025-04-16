@@ -9,16 +9,17 @@ export default class extends BaseSchema {
 
       table
         .integer('category_id')
+        .nullable()
         .unsigned()
         .references('id')
         .inTable('product_categories')
         .onDelete('SET NULL')
 
-      table.string('name')
-      table.string('slug').unique()
-      table.string('code').unique()
-      table.decimal('price')
-      table.text('description')
+      table.string('name').notNullable()
+      table.string('slug').notNullable().unique()
+      table.string('code').notNullable().unique()
+      table.decimal('price').notNullable()
+      table.text('description').nullable()
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

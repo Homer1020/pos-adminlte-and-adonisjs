@@ -10,6 +10,7 @@ export default class extends BaseSchema {
       table
         .integer('attribute_id')
         .unsigned()
+        .notNullable()
         .references('id')
         .inTable('attributes')
         .onDelete('CASCADE')

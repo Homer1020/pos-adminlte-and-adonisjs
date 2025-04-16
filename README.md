@@ -21,4 +21,11 @@ DB_DATABASE=almacen_adonis
 ```
 node ace migration:run --seed
 ```
-5. Enjoy the app
+5. Start the project in dev mode
+```
+npm run dev
+```
+## Generate build for production
+```
+npm run build
+```

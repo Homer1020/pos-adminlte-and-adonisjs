@@ -37,6 +37,7 @@ export default class PostsController {
       excerpt,
       content,
       category_id: categoryId,
+      brand_id: brandId,
     } = await createPostValidator.validate(request.all())
 
     const thumbnail = request.file('thumbnail')
@@ -48,19 +49,14 @@ export default class PostsController {
     }
 
     await db.transaction(async () => {
-      const post = await Post.create({
+      await Post.create({
         title,
         slug,
         excerpt,
         content,
+        category_id: categoryId,
         thumbnail: thumbnail?.fileName ? `/uploads/${thumbnail.fileName}` : undefined,
       })
-
-      const category = await Category.find(categoryId)
-
-      if (category) {
-        post.related('category').associate(category)
-      }
     })
 
     session.flash('notification', {

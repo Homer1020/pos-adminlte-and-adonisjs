@@ -17,6 +17,10 @@ export const createProductValidator = vine.compile(
       table: 'product_categories',
       column: 'id',
     }),
+    brand_id: vine.number().exists({
+      table: 'brands',
+      column: 'id',
+    }),
     values: vine.record(vine.unionOfTypes([vine.array(vine.number()), vine.number()])).optional(),
     images: vine
       .array(

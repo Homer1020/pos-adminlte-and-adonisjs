@@ -5,6 +5,7 @@ import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relat
 import ProductCategory from './product_category.js'
 import AttributeValue from './attribute_value.js'
 import Attribute from './attribute.js'
+import Brand from './brand.js'
 
 export default class Product extends BaseModel {
   @column({ isPrimary: true })
@@ -14,10 +15,13 @@ export default class Product extends BaseModel {
   declare name: string
 
   @column()
+  declare code: string
+
+  @column()
   declare slug: string
 
   @column()
-  declare description: string
+  declare description?: string
 
   @column()
   declare price: number
@@ -28,24 +32,26 @@ export default class Product extends BaseModel {
   declare images: HasMany<typeof ProductImage>
 
   @column({ columnName: 'category_id' })
-  declare categoryId: number
+  declare categoryId?: number
+
+  @column({ columnName: 'brand_id' })
+  declare brandId?: number
 
   @belongsTo(() => ProductCategory, {
     foreignKey: 'categoryId',
   })
   declare category: BelongsTo<typeof ProductCategory>
 
+  @belongsTo(() => Brand, {
+    foreignKey: 'brandId',
+  })
+  declare brand: BelongsTo<typeof Brand>
+
   @manyToMany(() => AttributeValue, {
     pivotColumns: ['attribute_id'],
     pivotTable: 'attribute_products',
   })
   declare values: ManyToMany<typeof AttributeValue>
-
-  @manyToMany(() => Attribute, {
-    pivotColumns: ['attribute_value_id'],
-    pivotTable: 'attribute_products',
-  })
-  declare attributes: ManyToMany<typeof Attribute>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

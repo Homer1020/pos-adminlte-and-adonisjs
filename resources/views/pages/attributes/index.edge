@@ -1,0 +1,120 @@
+@layout.app({ title: "Listado de attributos" })
+  @slot('css')
+    <!-- DataTables -->
+    <link rel="stylesheet" href="/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  @endslot
+  @slot('header')
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Attributos</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Attributos</li>
+        </ol>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  @endslot
+  @slot('main')
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-end mb-3">
+          <a href="{{ route('attributes.create') }}" class="btn btn-primary">
+            Crear Attributo
+          </a>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title m-0">Listado de Attributos</h5>
+          </div>
+          <div class="card-body">
+
+            <table class="table table-striped" id="attributesTable" style="width:100%">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Slug</th>
+                  <th>Valores</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  @endslot
+
+  @slot('scripts')
+    <script src="/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+      const attributesTable = new DataTable('#attributesTable', {
+        ajax: {
+          url: '{{ route("attributes.datatables") }}',
+          dataSrc: 'attributes'
+        },
+        ordering: true,
+        order: [],
+        columns: [
+          {data: 'name'},
+          {data: 'slug'},
+          {
+            data: 'values',
+            render(data) {
+              return data.map(data => `<span class="badge badge-pill badge-dark mr-1">${data.value}</span>`).join('')
+            }
+          },
+          {
+            data: 'routes',
+            render(data) {
+              return `
+                 <div style="white-space: nowrap;">
+                  <a href="${ data.editPath }" class="btn btn-warning">Editar</a>  
+                  <button onclick="deleteProduct('${data.deletePath}')" class="btn btn-danger">Eliminar</button>  
+                </div>
+              `.trim()
+            }
+          },
+        ],
+        columnDefs: [
+          {
+            targets: [2, -1],
+            orderable: false
+          }
+        ]
+      });
+
+      // async function deleteProduct(deletePath) {
+      //   const confirm = await Swal.fire({
+      //     title: "Are you sure?",
+      //     text: "You won't be able to revert this!",
+      //     icon: "warning",
+      //     showCancelButton: true,
+      //     confirmButtonColor: "#3085d6",
+      //     cancelButtonColor: "#d33",
+      //     confirmButtonText: "Yes, delete it!"
+      //   })
+
+      //   if(!confirm.isConfirmed) return;
+
+      //   const result = await fetch(deletePath, {
+      //     method: 'DELETE',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //       'X-CSRF-TOKEN': $('[name="csrf-token"]').attr('content')
+      //     }
+      //   }).then(resp => resp.json());
+      
+      //   if(!result.ok) return;
+
+      //   Swal.fire('Eliminado', 'Se eliminó el producto.', 'success');
+
+      //   attributesTable.ajax.reload(null, false);
+      // }
+    </script>
+  @endslot
+@end

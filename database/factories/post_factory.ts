@@ -10,7 +10,7 @@ export const PostFactory = factory
       title,
       slug: faker.helpers.slugify(title),
       content: faker.lorem.lines(10),
-      thumbnail: faker.image.url({ width: 720, height: 640 }),
+      thumbnail: '/assets/img/sample.jpg',
       excerpt: faker.lorem.lines(10),
     }
   })

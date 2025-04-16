@@ -9,6 +9,7 @@ export default class extends BaseSchema {
 
       table
         .integer('product_id')
+        .notNullable()
         .unsigned()
         .references('id')
         .inTable('products')
@@ -16,15 +17,8 @@ export default class extends BaseSchema {
         .onUpdate('CASCADE')
 
       table
-        .integer('attribute_id')
-        .unsigned()
-        .references('id')
-        .inTable('attributes')
-        .onDelete('CASCADE')
-        .onUpdate('CASCADE')
-
-      table
         .integer('attribute_value_id')
+        .notNullable()
         .unsigned()
         .references('id')
         .inTable('attribute_values')

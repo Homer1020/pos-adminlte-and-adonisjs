@@ -7,7 +7,10 @@ import { cuid } from '@adonisjs/core/helpers'
 import type { HttpContext } from '@adonisjs/core/http'
 import app from '@adonisjs/core/services/app'
 import router from '@adonisjs/core/services/router'
+import string from '@adonisjs/core/helpers/string'
 import fs from 'node:fs'
+import { DateTime } from 'luxon'
+import Brand from '#models/brand'
 
 export default class ProductsController {
   /**
@@ -28,7 +31,8 @@ export default class ProductsController {
   async create({ view }: HttpContext) {
     const categories = await Category.all()
     const attributes = await Attribute.query().preload('values')
-    return view.render('pages/products/create', { categories, attributes })
+    const brands = await Brand.all()
+    return view.render('pages/products/create', { categories, attributes, brands })
   }
 
   // /**
@@ -43,6 +47,7 @@ export default class ProductsController {
       price,
       images,
       values,
+      brand_id: brandId,
     } = await request.validateUsing(createProductValidator)
 
     // al menos debe de haber una imagen valida
@@ -60,9 +65,11 @@ export default class ProductsController {
       description,
       slug,
       categoryId,
+      brandId,
+      code: string.random(20),
     })
 
-    const postImages: Pick<ProductImage, 'path'>[] = []
+    const postImages: Pick<ProductImage, 'path' | 'is_default'>[] = []
 
     for (let image of validImages) {
       await image.move(app.makePath('storage/uploads/products'), {
@@ -87,8 +94,6 @@ export default class ProductsController {
         }
       })
 
-      console.log({ obj })
-
       post.related('values').attach(obj)
     }
 
@@ -104,11 +109,14 @@ export default class ProductsController {
     const dbProducts = await Product.query()
       .preload('category')
       .preload('images')
+      .preload('brand')
       .orderBy('created_at', 'desc')
 
     const products = dbProducts.map((product) => ({
       ...product.toJSON(),
+      createdAt: product.createdAt.toLocaleString(DateTime.DATE_MED),
       routes: {
+        editPath: router.builder().params(product).make('products.edit'),
         deletePath: router.builder().params(product).make('products.destroy'),
         showPath: router.builder().params(product).make('products.show'),
       },
@@ -147,7 +155,20 @@ export default class ProductsController {
   // /**
   //  * Edit individual record
   //  */
-  // async edit({ params }: HttpContext) {}
+  async edit({ params, view }: HttpContext) {
+    const { id } = params
+
+    const product = await Product.query()
+      .where({ id })
+      .preload('attributes')
+      .preload('images')
+      .first()
+    const categories = await Category.all()
+    const attributes = await Attribute.query().preload('values')
+    const brands = await Brand.all()
+
+    return view.render('pages/products/create', { product, categories, attributes, brands })
+  }
 
   // /**
   //  * Handle form submission for the edit action
