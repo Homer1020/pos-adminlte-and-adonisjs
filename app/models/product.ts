@@ -4,7 +4,6 @@ import ProductImage from './product_image.js'
 import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import ProductCategory from './product_category.js'
 import AttributeValue from './attribute_value.js'
-import Attribute from './attribute.js'
 import Brand from './brand.js'
 
 export default class Product extends BaseModel {
@@ -48,7 +47,6 @@ export default class Product extends BaseModel {
   declare brand: BelongsTo<typeof Brand>
 
   @manyToMany(() => AttributeValue, {
-    pivotColumns: ['attribute_id'],
     pivotTable: 'attribute_products',
   })
   declare values: ManyToMany<typeof AttributeValue>

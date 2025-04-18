@@ -83,19 +83,7 @@ export default class ProductsController {
 
     await post.related('images').createMany(postImages)
 
-    for (let attr in values) {
-      const obj: { [key: number]: { attribute_id: number } } = {}
-      const arrValues = Array.isArray(values[attr]) ? values[attr] : [values[attr]]
-      const attrId = Number(attr.split('-').at(-1))
-
-      arrValues.forEach((value) => {
-        obj[value] = {
-          attribute_id: attrId,
-        }
-      })
-
-      post.related('values').attach(obj)
-    }
+    post.related('values').attach(values)
 
     session.flash('notification', {
       type: 'success',
@@ -160,14 +148,27 @@ export default class ProductsController {
 
     const product = await Product.query()
       .where({ id })
-      .preload('attributes')
       .preload('images')
+      .preload('values', (query) => {
+        query.preload('attribute')
+      })
       .first()
+
+    const productAttributes = product?.values
+      ? Object.groupBy(product.values, (item) => item.attribute.id)
+      : {}
+
     const categories = await Category.all()
     const attributes = await Attribute.query().preload('values')
     const brands = await Brand.all()
 
-    return view.render('pages/products/create', { product, categories, attributes, brands })
+    return view.render('pages/products/create', {
+      product,
+      categories,
+      attributes,
+      brands,
+      productAttributes,
+    })
   }
 
   // /**

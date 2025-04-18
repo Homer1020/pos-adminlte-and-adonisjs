@@ -18,6 +18,7 @@
     </div><!-- /.row -->
   @endslot
   @slot('main')
+
     <form class="row" action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
       <div class="col-6">
         <div class="card">
@@ -120,14 +121,30 @@
           </div>
           <div class="card-body">
             @!form.select({
-              name: 'attributes',
+              name: 'attributes[]',
               data: attributes,
-              defaultOption: +old('attributes'),
+              defaultOptions: productAttributes ? Object.keys(productAttributes).map(k => +k): [],
               targetValue: 'id',
               targetText: 'name',
               label: 'Attributos',
               multiple: true
             })
+            <div id="valuesArea">
+              @if(productAttributes)
+                @each(attributeId in Object.keys(productAttributes))
+                  @let(attribute = attributes.find(attr => attr.id === +attributeId))
+                  <div class="mb-3" id="values-box-{{attributeId}}">
+                    <label class="form-label" for="values-{{attributeId}}">{{ attribute.name }}</label>
+                    <select multiple name="values[]" id="values-{{attributeId}}" class="form-control">
+                      @each(value in attribute.values)
+                        @let(selectedValues = productAttributes[attributeId].map(value => value.id))
+                        <option {{selectedValues.includes(value.id) ? 'selected' : ''}} value="{{value.id}}">{{ value.value }}</option>
+                      @endeach
+                    </select>
+                  </div>
+                @endeach
+              @endif
+            </div>
           </div>
         </div>
       </div>
@@ -179,6 +196,8 @@
         theme: 'bootstrap4',
       });
 
+      const $valuesArea = document.getElementById('valuesArea');
+
       $('#attributes').select2({
         allowClear: true,
         placeholder: 'Seleccione una Opción',
@@ -186,9 +205,26 @@
         multiple: true
       });
 
-      $('#attributes').on('change', function(ev) {
-        const attributes = $('#attributes').select2('data');
-        console.log({attributes})
+      $('#attributes').on('select2:select', function(ev) {
+        const { id: attributeId } = ev.params.data;
+        const attribute = attributes.find(attr => attr.id === +attributeId);
+
+        const select = `
+          <div class="mb-3" id="values-box-${ attribute.id }">
+            <label class="form-label" for="values-${ attribute.id }">${ attribute.name }</label>
+            <select multiple name="values[]" id="values-${ attribute.id }" class="form-control">
+              ${ attribute.values.map(value => `<option value="${ value.id }">${ value.value }</option>`) }
+            </select>
+          </div>
+        `.trim();
+
+        $valuesArea.insertAdjacentHTML('beforeend', select);
+      });
+
+      $('#attributes').on('select2:unselect', function(ev) {
+        const { id: attributeId } = ev.params.data;
+
+        $valuesArea.querySelector(`#values-box-${attributeId}`).remove();
       });
     </script>
   @endslot

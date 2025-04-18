@@ -3,7 +3,7 @@
   <select
     class="w-100 select2 {{ flashMessages.has(`inputErrorsBag[${ name }]`) ? 'is-invalid' : '' }}"
     name="{{ name }}"
-    id="{{ name }}"
+    id="{{ name.replace('[]', '') }}"
     {{ $props.only(['multiple']).toAttrs() }} 
     >
     @if(!multiple)
@@ -11,7 +11,12 @@
     @endif
     @each(item in data)
       <option
-        {{ defaultOption === item[targetValue] ? 'selected' : '' }}
+        @if(defaultOptions && Array.isArray(defaultOptions))
+          {{ defaultOptions.includes(item[targetValue]) ? 'selected' : '' }}
+        @endif
+        @if(defaultOption)
+          {{ defaultOption === item[targetValue] ? 'selected' : '' }}
+        @endif
         value="{{ item[targetValue] }}"
         >{{ item[targetText] }}</option>
     @endeach
