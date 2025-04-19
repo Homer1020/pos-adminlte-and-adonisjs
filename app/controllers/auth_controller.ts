@@ -41,4 +41,54 @@ export default class AuthController {
     await auth.use('web').logout()
     return response.redirect('/login')
   }
+
+  async githubLogin({ ally }: HttpContext) {
+    return ally.use('github').redirect()
+  }
+
+  async githubRedirect({ ally, response, auth }: HttpContext) {
+    const gh = ally.use('github')
+
+    /**
+     * User has denied access by canceling
+     * the login flow
+     */
+    if (gh.accessDenied()) {
+      return 'You have cancelled the login process'
+    }
+
+    /**
+     * OAuth state verification failed. This happens when the
+     * CSRF cookie gets expired.
+     */
+    if (gh.stateMisMatch()) {
+      return 'We are unable to verify the request. Please try again'
+    }
+
+    /**
+     * GitHub responded with some error
+     */
+    if (gh.hasError()) {
+      return gh.getError()
+    }
+
+    /**
+     * Access user info
+     */
+    const ghUser = await gh.user()
+
+    const user = await User.updateOrCreate(
+      {
+        email: ghUser.email,
+      },
+      {
+        fullName: ghUser.nickName,
+        githubToken: ghUser.token.token,
+      }
+    )
+
+    await auth.use('web').login(user)
+
+    return response.redirect().toRoute('products.index')
+  }
 }

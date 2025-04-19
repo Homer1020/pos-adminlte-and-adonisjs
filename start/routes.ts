@@ -56,6 +56,9 @@ router
     router.post('/login', [AuthController, 'login']).as('auth.login')
     router.get('/register', [AuthController, 'registerForm']).as('auth.registerForm')
     router.post('/register', [AuthController, 'register']).as('auth.register')
+
+    router.get('/github/redirect', [AuthController, 'githubLogin']).as('githubLogin')
+    router.get('/login/github/oauth', [AuthController, 'githubRedirect']).as('githubRedirect')
   })
   .middleware(
     middleware.guest({

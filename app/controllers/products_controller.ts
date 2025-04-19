@@ -50,15 +50,6 @@ export default class ProductsController {
       brand_id: brandId,
     } = await request.validateUsing(createProductValidator)
 
-    // al menos debe de haber una imagen valida
-    const validImages = images.filter((image) => image.isValid)
-
-    if (!validImages.length) {
-      return response.badRequest({
-        errors: 'All files are invalid.',
-      })
-    }
-
     const post = await Product.create({
       name,
       price,
@@ -69,19 +60,30 @@ export default class ProductsController {
       code: string.random(20),
     })
 
-    const postImages: Pick<ProductImage, 'path' | 'is_default'>[] = []
+    if (images) {
+      // al menos debe de haber una imagen valida
+      const validImages = images.filter((image) => image.isValid)
 
-    for (let image of validImages) {
-      await image.move(app.makePath('storage/uploads/products'), {
-        name: `${cuid()}.${image.extname}`,
-      })
+      if (!validImages.length) {
+        return response.badRequest({
+          errors: 'All files are invalid.',
+        })
+      }
 
-      postImages.push({
-        path: `/uploads/products/${image.fileName}`,
-      })
+      const postImages: Pick<ProductImage, 'path' | 'is_default'>[] = []
+
+      for (let image of validImages) {
+        await image.move(app.makePath('storage/uploads/products'), {
+          name: `${cuid()}.${image.extname}`,
+        })
+
+        postImages.push({
+          path: `/uploads/products/${image.fileName}`,
+        })
+      }
+
+      await post.related('images').createMany(postImages)
     }
-
-    await post.related('images').createMany(postImages)
 
     post.related('values').attach(values)
 
@@ -174,7 +176,67 @@ export default class ProductsController {
   // /**
   //  * Handle form submission for the edit action
   //  */
-  // async update({ params, request }: HttpContext) {}
+  async update({ params, request, response, session }: HttpContext) {
+    const {
+      name,
+      description,
+      slug,
+      category_id: categoryId,
+      price,
+      images,
+      brand_id: brandId,
+      values,
+    } = await request.validateUsing(createProductValidator, {
+      meta: {
+        productId: params.id,
+      },
+    })
+
+    const product = await Product.findOrFail(params.id)
+
+    await product
+      .merge({
+        name,
+        description,
+        slug,
+        categoryId,
+        price,
+        brandId,
+      })
+      .save()
+
+    if (images) {
+      const validImages = images.filter((image) => image.isValid)
+      const postImages: Pick<ProductImage, 'path' | 'is_default'>[] = []
+
+      if (images && !validImages.length) {
+        return response.badRequest({
+          errors: 'All files are invalid.',
+        })
+      }
+
+      for (let image of validImages) {
+        await image.move(app.makePath('storage/uploads/products'), {
+          name: `${cuid()}.${image.extname}`,
+        })
+
+        postImages.push({
+          path: `/uploads/products/${image.fileName}`,
+        })
+      }
+
+      await product.related('images').createMany(postImages)
+    }
+
+    await product.related('values').sync(values)
+
+    session.flash('notification', {
+      type: 'success',
+      message: 'Se guardó correctamente el producto',
+    })
+
+    return response.redirect().toRoute('products.index')
+  }
 
   // /**
   //  * Delete record

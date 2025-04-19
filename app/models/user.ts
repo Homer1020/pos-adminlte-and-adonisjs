@@ -23,6 +23,12 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column({ serializeAs: null })
   declare password: string
 
+  @column({ serializeAs: null, columnName: 'github_token' })
+  declare githubToken: string
+
+  @column({ serializeAs: null, columnName: 'github_token_expires_at' })
+  declare githubTokenExpiresAt: DateTime
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

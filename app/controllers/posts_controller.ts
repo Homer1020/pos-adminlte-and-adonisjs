@@ -37,7 +37,6 @@ export default class PostsController {
       excerpt,
       content,
       category_id: categoryId,
-      brand_id: brandId,
     } = await createPostValidator.validate(request.all())
 
     const thumbnail = request.file('thumbnail')

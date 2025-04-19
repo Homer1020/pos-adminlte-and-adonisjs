@@ -29,6 +29,6 @@ export const createProductValidator = vine.compile(
           extnames: ['png', 'jpg', 'jpeg', 'webp'],
         })
       )
-      .minLength(1),
+      .optional(),
   })
 )
