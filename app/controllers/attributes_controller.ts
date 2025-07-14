@@ -13,7 +13,9 @@ export default class AttributesController {
   /**
    * Display form to create a new record
    */
-  async create({}: HttpContext) {}
+  async create({ view }: HttpContext) {
+    return view.render('pages/attributes/create')
+  }
 
   /**
    * Handle form submission for the create action
@@ -28,7 +30,9 @@ export default class AttributesController {
   /**
    * Edit individual record
    */
-  async edit({ params }: HttpContext) {}
+  async edit({ params, view }: HttpContext) {
+    return view.render('pages/attributes/create', params)
+  }
 
   /**
    * Handle form submission for the edit action

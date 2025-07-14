@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -25,7 +25,7 @@
   @if($slots.css)
     {{{ await $slots.css() }}}
   @endif
-
+  @stack('dumper')
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -254,6 +254,9 @@
 </div>
 <!-- ./wrapper -->
 
+<!-- Dynamic Modal -->
+<div class="modal fade" id="dynamicModal" tabindex="-1" role="dialog" aria-labelledby="dynamicModalLabel" aria-hidden="true"></div>
+
 <!-- jQuery -->
 <script src="/plugins/jquery/jquery.min.js"></script>
 <!-- jQuery UI 1.11.4 -->
@@ -275,6 +278,18 @@
 <script>
   $('.select2').select2({
     theme: 'bootstrap4'
+  })
+
+  $dynamicModal = $('#dynamicModal')
+
+  $('.dynamicModal').on('click', async function(e) {
+    const $button = $(e.currentTarget)
+    const path = $button.data('path')
+    if(!path) return
+    const resp = await (await fetch(path)).text()
+    if(!resp) return
+    $dynamicModal.html(resp)
+    $dynamicModal.modal('show')
   })
 </script>
 

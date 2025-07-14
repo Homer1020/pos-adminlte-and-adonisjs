@@ -50,12 +50,21 @@ export default class ProductsController {
       brand_id: brandId,
     } = await request.validateUsing(createProductValidator)
 
+    let categoryToUse: number
+    if (typeof categoryId === 'string') {
+      const dbCategory = await Category.create({ name: categoryId, display_name: categoryId })
+
+      categoryToUse = dbCategory.id
+    } else {
+      categoryToUse = categoryId
+    }
+
     const post = await Product.create({
       name,
       price,
       description,
       slug,
-      categoryId,
+      categoryId: categoryToUse,
       brandId,
       code: string.random(20),
     })
@@ -85,7 +94,7 @@ export default class ProductsController {
       await post.related('images').createMany(postImages)
     }
 
-    post.related('values').attach(values)
+    if (values) post.related('values').attach(values)
 
     session.flash('notification', {
       type: 'success',
@@ -194,12 +203,21 @@ export default class ProductsController {
 
     const product = await Product.findOrFail(params.id)
 
+    let categoryToUse: number
+    if (typeof categoryId === 'string') {
+      const dbCategory = await Category.create({ name: categoryId, display_name: categoryId })
+
+      categoryToUse = dbCategory.id
+    } else {
+      categoryToUse = categoryId
+    }
+
     await product
       .merge({
         name,
         description,
         slug,
-        categoryId,
+        categoryId: categoryToUse,
         price,
         brandId,
       })
@@ -228,7 +246,7 @@ export default class ProductsController {
       await product.related('images').createMany(postImages)
     }
 
-    await product.related('values').sync(values)
+    if (values) await product.related('values').sync(values)
 
     session.flash('notification', {
       type: 'success',

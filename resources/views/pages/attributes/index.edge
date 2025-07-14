@@ -20,7 +20,7 @@
     <div class="row">
       <div class="col-12">
         <div class="d-flex justify-content-end mb-3">
-          <a href="{{ route('attributes.create') }}" class="btn btn-primary">
+          <a data-path="{{route('attributes.create')}}" href="javascript:void(0)" class="btn btn-primary dynamicModal" id="btn-new-attribute">
             Crear Attributo
           </a>
         </div>
@@ -73,7 +73,7 @@
             render(data) {
               return `
                  <div style="white-space: nowrap;">
-                  <a href="${ data.editPath }" class="btn btn-warning">Editar</a>  
+                  <button data-path="${ data.editPath }" data-toggle="modal" data-target="#dynamicModal" class="btn btn-warning">Editar</button>  
                   <button onclick="deleteProduct('${data.deletePath}')" class="btn btn-danger">Eliminar</button>  
                 </div>
               `.trim()

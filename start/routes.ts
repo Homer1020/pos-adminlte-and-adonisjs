@@ -16,7 +16,7 @@ const AttributesController = () => import('#controllers/attributes_controller')
 const AssetsController = () => import('#controllers/assets_controller')
 const ProductsController = () => import('#controllers/products_controller')
 
-router.on('/').render('pages/home')
+router.on('/').render('pages/front/home')
 
 /**
  * PRIVATE ROUTES
