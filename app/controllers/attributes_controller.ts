@@ -20,7 +20,19 @@ export default class AttributesController {
   /**
    * Handle form submission for the create action
    */
-  async store({ request }: HttpContext) {}
+  async store({ request, response }: HttpContext) {
+    try {
+      const { name, slug, values } = request.body()
+      const attribute = await Attribute.create({ name, slug })
+      await attribute.related('values').createMany(values.map((value: string) => ({ value })))
+      response.json({ ok: true, attribute })
+    } catch (err) {
+      console.log(err)
+      response.status(500).json({
+        ok: false,
+      })
+    }
+  }
 
   /**
    * Show individual record
@@ -30,14 +42,36 @@ export default class AttributesController {
   /**
    * Edit individual record
    */
-  async edit({ params, view }: HttpContext) {
-    return view.render('pages/attributes/create', params)
+  async edit({ view, params }: HttpContext) {
+    const attribute = await Attribute.find(params.id)
+    await attribute?.load('values')
+    return view.render('pages/attributes/create', { attribute })
   }
 
   /**
    * Handle form submission for the edit action
    */
-  async update({ params, request }: HttpContext) {}
+  async update({ params, request, response }: HttpContext) {
+    try {
+      const { name, slug, values } = request.body()
+
+      const attribute = await Attribute.findOrFail(params.id)
+      attribute.merge({ name, slug }).save()
+
+      const preservedIDs = values.filter((value: string) => !Number.isNaN(+value))
+      const newValues = values.filter((value: string) => Number.isNaN(+value))
+
+      await attribute.related('values').query().whereNotIn('id', preservedIDs).delete()
+      await attribute.related('values').createMany(newValues.map((value: string) => ({ value })))
+
+      response.json({ ok: true, attribute })
+    } catch (err) {
+      console.log(err)
+      response.status(500).json({
+        ok: false,
+      })
+    }
+  }
 
   async datatables({ response }: HttpContext) {
     const dbAttributes = await Attribute.query().preload('values')
@@ -47,7 +81,7 @@ export default class AttributesController {
       routes: {
         editPath: router.builder().params(attribute).make('attributes.edit'),
         deletePath: router.builder().params(attribute).make('attributes.destroy'),
-        showPath: router.builder().params(attribute).make('attributes.show'),
+        // showPath: router.builder().params(attribute).make('attributes.show'),
       },
     }))
 
@@ -57,5 +91,16 @@ export default class AttributesController {
   /**
    * Delete record
    */
-  async destroy({ params }: HttpContext) {}
+  async destroy({ params, response }: HttpContext) {
+    try {
+      const attribute = await Attribute.find(params.id)
+
+      attribute?.delete()
+
+      return response.json({ ok: true })
+    } catch (err) {
+      console.log(err)
+      return response.status(500).json({ ok: false })
+    }
+  }
 }

@@ -282,13 +282,16 @@
 
   $dynamicModal = $('#dynamicModal')
 
-  $('.dynamicModal').on('click', async function(e) {
+  $(document).on('click', '.dynamicModal', async function(e) {
     const $button = $(e.currentTarget)
     const path = $button.data('path')
     if(!path) return
     const resp = await (await fetch(path)).text()
     if(!resp) return
     $dynamicModal.html(resp)
+    $dynamicModal.find('.select2').select2({
+      theme: 'bootstrap4'
+    })
     $dynamicModal.modal('show')
   })
 </script>

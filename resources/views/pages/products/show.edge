@@ -24,7 +24,9 @@
           <div class="col-12 col-sm-6">
             <h3 class="d-inline-block d-sm-none">{{ product.name }}</h3>
             <div class="col-12">
-              <img src="{{ product.images[0].path }}" class="product-image" alt="Product Image">
+              @if(product.images[0])
+                <img src="{{ product.images[0].path }}" class="product-image" alt="Product Image">
+              @endif
             </div>
             <div class="col-12 product-image-thumbs">
               @each(image in product.images.slice(1, product.images.length))
