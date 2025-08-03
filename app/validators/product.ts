@@ -1,12 +1,18 @@
 import vine from '@vinejs/vine'
 
 const category = vine.group([
-  vine.group.if((data) => !Number.isNaN(+data.category_id!), {
-    category_id: vine.number({ strict: false }).exists({
-      table: 'product_categories',
-      column: 'id',
-    }),
-  }),
+  vine.group.if(
+    (data) => {
+      console.log({ data })
+      !Number.isNaN(+data.category_id!)
+    },
+    {
+      category_id: vine.number({ strict: false }).exists({
+        table: 'product_categories',
+        column: 'id',
+      }),
+    }
+  ),
   vine.group.else({
     category_id: vine.string().trim().minLength(1),
   }),

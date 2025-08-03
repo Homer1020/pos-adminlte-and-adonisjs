@@ -116,7 +116,14 @@
           body: data
         })).json()
 
-        if(!response.ok) return;
+        if(response.messages) {
+          response.messages.forEach(message => {
+            $(`[name="${message.field}"]`).addClass('is-invalid')
+          })
+          return
+        }
+
+        if(!response.ok) return
 
         $('#dynamicModal').modal('hide')
         attributesTable.ajax.reload()

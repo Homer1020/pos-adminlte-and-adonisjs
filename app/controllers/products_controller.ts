@@ -50,14 +50,17 @@ export default class ProductsController {
       brand_id: brandId,
     } = await request.validateUsing(createProductValidator)
 
-    let categoryToUse: number
-    if (typeof categoryId === 'string') {
-      const dbCategory = await Category.create({ name: categoryId, display_name: categoryId })
+    console.log({ categoryId })
 
+    let categoryToUse: number
+    if (Number.isNaN(+categoryId) && typeof categoryId === 'string') {
+      const dbCategory = await Category.create({ name: categoryId, display_name: categoryId })
       categoryToUse = dbCategory.id
     } else {
-      categoryToUse = categoryId
+      categoryToUse = +categoryId
     }
+
+    console.log({ categoryToUse })
 
     const post = await Product.create({
       name,

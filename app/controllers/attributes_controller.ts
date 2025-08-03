@@ -1,6 +1,8 @@
 import Attribute from '#models/attribute'
+import { createAttributeValidator } from '#validators/attribute'
 import type { HttpContext } from '@adonisjs/core/http'
 import router from '@adonisjs/core/services/router'
+import { errors } from '@vinejs/vine'
 
 export default class AttributesController {
   /**
@@ -22,13 +24,16 @@ export default class AttributesController {
    */
   async store({ request, response }: HttpContext) {
     try {
-      const { name, slug, values } = request.body()
+      const data = request.all()
+      const { name, slug, values } = await createAttributeValidator.validate(data)
       const attribute = await Attribute.create({ name, slug })
-      await attribute.related('values').createMany(values.map((value: string) => ({ value })))
+      await attribute.related('values').createMany(values.map((value) => ({ value })))
       response.json({ ok: true, attribute })
     } catch (err) {
-      console.log(err)
-      response.status(500).json({
+      if (err instanceof errors.E_VALIDATION_ERROR) {
+        return response.status(500).json({ ok: false, messages: err.messages })
+      }
+      return response.status(500).json({
         ok: false,
       })
     }
