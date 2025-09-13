@@ -12,6 +12,7 @@ const UsersController = () => import('#controllers/users_controller')
 const AuthController = () => import('#controllers/auth_controller')
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const SalesController = () => import('#controllers/sales_controller')
 const AttributesController = () => import('#controllers/attributes_controller')
 const AssetsController = () => import('#controllers/assets_controller')
 const ProductsController = () => import('#controllers/products_controller')
@@ -27,6 +28,7 @@ router
     router.resource('users', UsersController)
     router.resource('products', ProductsController)
     router.resource('attributes', AttributesController).except(['show'])
+    router.resource('sales', SalesController)
 
     router.get('datatables/products', [ProductsController, 'datatables']).as('products.datatables')
     router

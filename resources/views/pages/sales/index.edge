@@ -1,0 +1,129 @@
+@layout.app({ title: "Listado de ventas" })
+  @slot('css')
+    <!-- DataTables -->
+    <link rel="stylesheet" href="/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  @endslot
+  @slot('header')
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Ventas</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Ventas</li>
+        </ol>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  @endslot
+  @slot('main')
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-end mb-3">
+          <a href="{{ route('sales.create') }}" class="btn btn-primary">
+            Crear Venta
+          </a>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title m-0">Listado de ventas</h5>
+          </div>
+          <div class="card-body">
+
+            <table class="table table-striped" id="productsTable" style="width:100%">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Estado</th>
+                  <th>Estado del pago</th>
+                  <th>Fecha</th>
+                  <th>Total</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  @endslot
+
+  @slot('scripts')
+    <script src="/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    {{--  <script>
+      const productsTable = new DataTable('#productsTable', {
+        ajax: {
+          url: '{{ route("products.datatables") }}',
+          dataSrc: 'products'
+        },
+        ordering: true,
+        order: [],
+        columns: [
+          {
+            data: 'images',
+            render(data) {
+              if(data.length) {
+                return `<img src="${ data[0].path }" width="100">`;
+              }
+              return 'Sin imagen'
+            }
+          },
+          { data: 'name' },
+          { data: 'price', render(data) { return '$' + data } },
+          { data: 'category.name' },
+          { data: 'brand.name', },
+          { data: 'createdAt' },
+          {
+            data: 'routes',
+            render(data) {
+              return `
+                <div style="white-space: nowrap;">
+                  <a href="${ data.showPath }" class="btn btn-primary">Detalles</a>
+                  <a href="${ data.editPath }" class="btn btn-warning">Editar</a>
+                  <button onclick="deleteProduct('${data.deletePath}')" class="btn btn-danger">Eliminar</button>  
+                </div>
+              `
+            }
+          },
+        ],
+        columnDefs: [
+          {
+            targets: [0, -1],
+            orderable: false
+          }
+        ]
+      });
+
+      async function deleteProduct(deletePath) {
+        const confirm = await Swal.fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, delete it!"
+        })
+
+        if(!confirm.isConfirmed) return;
+
+        const result = await fetch(deletePath, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': $('[name="csrf-token"]').attr('content')
+          }
+        }).then(resp => resp.json());
+      
+        if(!result.ok) return;
+
+        Swal.fire('Eliminado', 'Se eliminó el producto.', 'success');
+
+        productsTable.ajax.reload(null, false);
+      }
+    </script>  --}}
+  @endslot
+@end

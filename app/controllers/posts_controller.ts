@@ -30,7 +30,7 @@ export default class PostsController {
   /**
    * Handle form submission for the create action
    */
-  async store({ request, response, session }: HttpContext) {
+  async store({ request, response, session, auth }: HttpContext) {
     const {
       title,
       slug,
@@ -49,6 +49,7 @@ export default class PostsController {
 
     await db.transaction(async () => {
       await Post.create({
+        user_id: auth.user?.id,
         title,
         slug,
         excerpt,
@@ -82,10 +83,14 @@ export default class PostsController {
   /**
    * Edit individual record
    */
-  async edit({ params, view }: HttpContext) {
+  async edit({ params, view, bouncer, response }: HttpContext) {
     const { id } = params
 
     const post = await Post.findOrFail(id)
+
+    if (await bouncer.with('PostPolicy').denies('edit', post)) {
+      return response.forbidden('Cannot create a post')
+    }
 
     const categories = await Category.all()
 

@@ -1,10 +1,10 @@
 <div class="mb-3">
   <label for="{{ name }}" class="form-label">{{ label }}</label>
   <select
-    class="w-100 select2 {{ flashMessages.has(`inputErrorsBag[${ name }]`) ? 'is-invalid' : '' }}"
+    {{--  class="w-100 select2 {{ flashMessages.has(`inputErrorsBag[${ name }]`) ? 'is-invalid' : '' }}"  --}}
     name="{{ name }}"
     id="{{ name.replace('[]', '') }}"
-    {{ $props.only(['multiple']).toAttrs() }} 
+    {{$props.only(['class', 'multiple', 'dataPlaceholder', 'dataTags']).merge({class: ['w-100', 'select2']}).toAttrs()}}
     >
     @if(!multiple)
       <option></option>
@@ -18,6 +18,9 @@
           {{ defaultOption === item[targetValue] ? 'selected' : '' }}
         @endif
         value="{{ item[targetValue] }}"
+        @if(jsonData)
+          data-json="{{JSON.stringify(item)}}"
+        @endif
         >{{ item[targetText] }}</option>
     @endeach
   </select>

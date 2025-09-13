@@ -37,4 +37,48 @@
         </li>
       </ul>
     </li>
+
+    <li class="nav-item {{ request.matchesRoute(['users.index', 'users.create', 'users.show', 'users.edit']) ? 'menu-open' : '' }}">
+      <a href="#" class="nav-link {{ request.matchesRoute(['users.index', 'users.create', 'users.show', 'users.edit']) ? 'active' : '' }}">
+        <i class="nav-icon fas fa-shopping-cart"></i>
+        <p>
+          Usuarios
+          <i class="right fas fa-angle-left"></i>
+        </p>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item">
+          <a href="{{ route('users.index') }}" class="nav-link {{ request.matchesRoute(['users.index']) ? 'active' : '' }}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Administrativos</p>
+          </a>
+          <a href="{{ route('users.create') }}" class="nav-link {{ request.matchesRoute(['users.create']) ? 'active' : '' }}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Clientes</p>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="nav-item {{ request.matchesRoute(['sales.index', 'sales.create', 'sales.show', 'sales.edit']) ? 'menu-open' : '' }}">
+      <a href="#" class="nav-link {{ request.matchesRoute(['sales.index', 'sales.create', 'sales.show', 'sales.edit']) ? 'active' : '' }}">
+        <i class="nav-icon fas fa-shopping-cart"></i>
+        <p>
+          Ventas
+          <i class="right fas fa-angle-left"></i>
+        </p>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item">
+          <a href="{{ route('sales.index') }}" class="nav-link {{ request.matchesRoute(['sales.index']) ? 'active' : '' }}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Listado de Ventas</p>
+          </a>
+          <a href="{{ route('sales.create') }}" class="nav-link {{ request.matchesRoute(['sales.create']) ? 'active' : '' }}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Crear Venta</p>
+          </a>
+        </li>
+      </ul>
+    </li>
 </nav>

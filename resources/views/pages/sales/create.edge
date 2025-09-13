@@ -1,0 +1,128 @@
+@let(pageTitle = sale ? 'Editar Venta' : 'Crear Venta')
+@layout.app({ title: "Crear Venta" })
+  @slot('css')
+    <link rel="stylesheet" href="/plugins/summernote/summernote-bs4.min.css">
+  @endslot
+  @slot('header')
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Ventas</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('sales.index') }}">Ventas</a></li>
+          <li class="breadcrumb-item active">{{ pageTitle }}</li>
+        </ol>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  @endslot
+  @slot('main')
+    <form class="card" action="#">
+      <div class="card-header">
+        <h5 class="card-title m-0">Crear Venta</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-6">
+            @!form.select({
+              name: 'customer',
+              data: [{display_name: 'Homer', id: 1}],
+              defaultOption: +old('customer', product?.categoryId || ''),
+              targetValue: 'id',
+              targetText: 'display_name',
+              label: 'Cliente',
+              dataPlaceholder: 'Seleccione un cliente',
+              dataTags: "true"
+            })
+          </div>
+          <div class="col-lg-6">
+            @!form.select({
+              name: 'product',
+              data: products,
+              defaultOption: +old('product', product?.categoryId || ''),
+              targetValue: 'id',
+              targetText: 'name',
+              label: 'Productos',
+              dataPlaceholder: 'Seleccione los productos',
+              jsonData: true
+            })
+          </div>
+          <div class="col-12">
+            <table class="table table-bordered table-sm" id="products-table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Descuento</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td>
+                    Total:
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div class="col-lg-12 text-right">
+            <button class="btn btn-primary">Confirmar venta</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  @endslot
+
+  @slot('scripts')
+    <script src="/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+    <script>
+      $('#customer').on('change', function() {
+        const val = $(this).val();
+
+        if(!isNaN(+val)) {
+          return;
+        }
+      });
+
+      $('#product').on('change', function() {
+        const product = $('#product option:selected').data('json');
+
+        if(!product) return;
+
+        console.log({product});
+
+        $('#products-table tbody').append(`
+          <tr>
+            <td>${ product.name }</td>  
+            <td>
+              <input type="number" min="1" value="1">
+            </td>  
+            <td>
+              <input type="number" min="${ product.price }" value="${ product.price }" step="0.01">
+            </td>  
+            <td>  
+              <input type="number" min="0" step="0.01" value="0">
+            </td>  
+            <td>
+              <button class="btn btn-sm btn-danger">
+                <i class="fa fa-trash"></i>  
+              </button>
+            </td>  
+          </tr>
+        `);
+
+        $(this).val(null).trigger('change');
+      });
+    </script>
+  @endslot
+@end

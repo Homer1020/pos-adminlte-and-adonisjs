@@ -54,11 +54,15 @@
                     <td>{{ post.createdAt }}</td>
                     <td>
                       <nobr>
-                        <a href="{{ route('posts.edit', post) }}" class="btn btn-warning">Editar</a>
-                        <form onsubmit="handleDelete(this)" class="d-inline-block delete-post" action="{{ route('posts.destroy', post, { qs: { _method: 'DELETE' } }) }}" method="POST">
-                          {{ csrfField() }}
-                          <button type="submit" class="btn btn-danger">Eliminar</button>
-                        </form>
+                        @can('PostPolicy.edit', post)
+                          <a href="{{ route('posts.edit', post) }}" class="btn btn-warning">Editar</a>
+                        @end
+                        @can('PostPolicy.delete', post)
+                          <form onsubmit="handleDelete(this)" class="d-inline-block delete-post" action="{{ route('posts.destroy', post, { qs: { _method: 'DELETE' } }) }}" method="POST">
+                            {{ csrfField() }}
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                          </form>
+                        @end
                       </nobr>
                     </td>
                   </tr>
