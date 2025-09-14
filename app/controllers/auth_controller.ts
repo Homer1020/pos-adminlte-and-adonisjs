@@ -84,6 +84,7 @@ export default class AuthController {
       {
         fullName: ghUser.nickName,
         githubToken: ghUser.token.token,
+        githubAvatar: ghUser.original.avatar_url,
       }
     )
 

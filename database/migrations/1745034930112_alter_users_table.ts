@@ -7,6 +7,7 @@ export default class extends BaseSchema {
     this.schema.alterTable(this.tableName, (table) => {
       table.string('github_token').nullable()
       table.string('github_token_expires_at').nullable()
+      table.string('github_avatar').nullable()
     })
   }
 
@@ -14,6 +15,7 @@ export default class extends BaseSchema {
     this.schema.alterTable(this.tableName, (table) => {
       table.dropColumn('github_token')
       table.dropColumn('github_token_expires_at')
+      table.dropColumn('github_avatar')
     })
   }
 }
